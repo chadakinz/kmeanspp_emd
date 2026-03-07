@@ -1,6 +1,6 @@
 #pragma once
 #include "numericArray.h"
-#include "config.h"
+#include "../config.h"
 #include <cstddef>
 
 template <typename T, std::size_T N>
