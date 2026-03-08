@@ -1,17 +1,23 @@
+#pragma once
 #include <array>
 #include <vector>
+#include <cstddef>
 
-template<typename T, std::size_t N>
+template<typename T>
 class NumericArray {
 private:
-    std::array<T, N> _data;
+    std::vector<T> _data;
+    int N;
 
 public:
+    NumericArray(int n) : N(n) {_data.resize(n);}
+
+
     T& operator[](std::size_t i){ return _data[i]; }
-    const T& operator[](std::size_t i){return _data[i]; }
+    const T& operator[](std::size_t i) const {return _data[i]; }
 
     NumericArray operator+(const NumericArray& b){
-        NumericArray x;
+        NumericArray x(N);
         for(int i = 0; i < N; i++){
             x[i] = _data[i] + b[i];
         }
@@ -19,7 +25,7 @@ public:
     }
 
     NumericArray operator-(const NumericArray& b){
-        NumericArray x;
+        NumericArray x(N);
         for(int i = 0; i < N; i++){
             x[i] = _data[i] - b[i];
         }
@@ -41,7 +47,7 @@ public:
         }
     }
     NumericArray cum_sum(){
-        NumericArray c;
+        NumericArray c(N);
         T val{};
         for(int i = 0; i < N; i++){
             val += _data[i];
@@ -49,4 +55,5 @@ public:
         }
         return c;
     }
+    std::size_t size() const {return N;}
 };

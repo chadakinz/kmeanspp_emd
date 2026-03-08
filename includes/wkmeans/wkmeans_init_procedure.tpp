@@ -1,19 +1,19 @@
 namespace kmeans{
-    template<int M>
-    void WKmeans<T,N>::update_probability_vector(const NumericArray<T, M>& distances, const  std::vector<std::size_t>& updated_distance
-            ,const T& sum, NumericArray<T, M>& probs, const int& updated_distance_size){
+    template<typename T>
+    void WKmeans<T>::update_probability_vector(const NumericArray<T>& distances, const  std::vector<std::size_t>& updated_distance
+            ,const T& sum, NumericArray<T>& probs, const int& updated_distance_size){
         for(int i = 0; i < updated_distance_size; i++){
             j = updated_distance[i];
             probs[j] = distances[j]/sum;
         }
     }
-    template<typename T, std::size_t N>
-    void WKmeans<T,N>::init_clusters(){
+    template<typename T>
+    void WKmeans<T>::init_clusters(){
         T sum{};
         T x, y;
         std::size_t M = pdfs.size();
-        NumericArray<T, M> probs;
-        NumericArray<T, M> distances{};
+        NumericArray<T> probs(d_size);
+        NumericArray<T> distances(d_size);
         std::uniform_int_distribution<int> dist(0, M-1);
         int random_cluster_index = dist(gen);
         PPF<T, PPF_SIZE> current_cluster = ppfs[random_cluster_index];
@@ -38,7 +38,8 @@ namespace kmeans{
             update_probability_vector(distances, updated_distance, sum, probs, updated_distance_size);
             std::discrete_distribution<> dist(probs.begin(), probs.end());
             int sample = dist(gen);
-            new_cluster = ppfs[sampe];
+            new_cluster = ppfs[sample];
+            updated_distance_size = 0;
             clusters.push_back(new_cluster);
 
         }

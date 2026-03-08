@@ -4,13 +4,17 @@
 #include <cstddef>
 #include <string>
 
-template <typename T, std::size_t N>
-class PDF: public NumericArray<T, N>{
+template <typename T>
+class CDF;
+
+template <typename T>
+class PDF: public NumericArray<T>{
 public:
-    CDF<T,N> get_cdf() const{
-        CDF<T, N> cdf;
+    PDF(int n): NumericArray<T>(n){}
+    CDF<T> get_cdf() const {
+        CDF<T> cdf((*this).N);
         T sum{};
-        for (std::size_t i = 0; i < N; i++){
+        for (std::size_t i = 0; i < (*this).N; i++){
             sum += (*this)[i];
             cdf[i] = sum;
         }
@@ -18,9 +22,9 @@ public:
     }
 };
 
-template<typename T, std::size_t N>
-private inline PDF<T, N> process_line_into_pdf(std::string line){
-    PDF<T, N> pdf;
+template<typename T>
+private inline PDF<T> process_line_into_pdf(std::string line, int n){
+    PDF<T> pdf(n);
     int count = 0;
     std::string f_val = "";
     for(int i = 0; i < line.size(); i++){

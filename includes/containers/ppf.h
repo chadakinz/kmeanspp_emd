@@ -1,19 +1,17 @@
 #pragma once
 #include "numericArray.h"
-#include "cdf.h"
-#include "pdf.h"
 
-template <typename T, std::size_t N>
-class PPF: public NumericArray<T, N>{
+template <typename T>
+class PPF: public NumericArray<T>{
 public:
-    T wasserstein_2()
+    PPF(int n) : NumericArray<T>(n){}
 };
 
 //Takes two quantile functions and finds the wasserstein distance between them
-template <typename T, std::size_t N>
-T wasserstein_2(PPF<T, N>& a, PPF<T, N>& b){
+template <typename T>
+T wasserstein_2(PPF<T>& a, PPF<T>& b){
     T sum{};
-    for (std::size_t i = 0; i < N; i ++){
+    for (std::size_t i = 0; i < a.size(); i ++){
         T diff = a[i] - b[i];
         sum += diff * diff;
     }
