@@ -3,14 +3,28 @@
 #include "cdf.h"
 #include <cstddef>
 #include <string>
+#include <iostream>
 
-template <typename T, std::size_t N>
-class PDF: public NumericArray<T, N>{
+template <typename T>
+class CDF;
+
+template <typename T>
+class PDF: public NumericArray<T>{
 public:
-    CDF<T,N> get_cdf() const{
-        CDF<T, N> cdf;
+    PDF(int n): NumericArray<T>(n){}
+
+    PDF(std::initializer_list<T> values): NumericArray<T>(values.size()){
+        int i = 0;
+        for(T val: values){
+            (*this)[i] = val;
+            i++;
+        }
+    }
+
+    CDF<T> get_cdf() const {
+        CDF<T> cdf((*this).size());
         T sum{};
-        for (std::size_t i = 0; i < N; i++){
+        for (std::size_t i = 0; i < (*this).size(); i++){
             sum += (*this)[i];
             cdf[i] = sum;
         }
@@ -18,9 +32,9 @@ public:
     }
 };
 
-template<typename T, std::size_t N>
-private inline PDF<T, N> process_line_into_pdf(std::string line){
-    PDF<T, N> pdf;
+template<typename T>
+inline PDF<T> process_line_into_pdf(std::string line, int n){
+    PDF<T> pdf(n);
     int count = 0;
     std::string f_val = "";
     for(int i = 0; i < line.size(); i++){

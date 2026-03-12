@@ -25,6 +25,9 @@ void process_input(int argc, char* argv[], Config& cfg){
 
             cfg.input_file = argv[++i];
         }
+        else if(argv[i] == "-u"){
+            cfg.ppf_size = std::stoi(argv[++i]);
+        }
     }
 }
 
@@ -55,8 +58,9 @@ int main(int argc, char* argv[]){
         std::cout << "(flag, default): description" << std::endl;
         std::cout << "(-k, 10): number of clusters" << std::endl;
         std::cout << "(-i, NONE): name of the input file (must be a csv)" << std::endl;
-        std::cout << "(-o, output.csv): name of the output file"
+        std::cout << "(-o, output.csv): name of the output file" << std::endl;
         std::cout << "(-s, 1e-4): epsilon parameter used to specify when program should terminate" << std::endl;
+        std::cout << "(-u, 20): size of percent point function bins" << std::endl;
     }
     process_input(argc, argv, cfg);
     init_constants(cfg);
@@ -68,8 +72,7 @@ int main(int argc, char* argv[]){
     cdfs.reserve(d_size);
     ppfs.reserve(d_size);
     initialize_distributions(input_file, pdfs, cdfs, ppfs);
-    WKmeans<Distribution<float, feature>> wkmeans(d_size, feature, epsilon, pdfs, cdfs);
-
+    WKmeans<float> wkmeans(d_size, NUM_CLUSTERS, epsilon, pdfs, cdfs, feature);
     return 0;
 }
 
