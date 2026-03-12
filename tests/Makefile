@@ -8,19 +8,15 @@ LIBDIR := -L../lib
 
 LIBS := -lCatch2Main -lCatch2
 
-TESTS := test_canonical.o test_get_equity_distribution.o
 
-TEST_CDF := test_cdf
+TESTS := test_pdf test_wkmeans_init_procedure test_cdf test_ppf
+all: $(TESTS)
 
-TEST_CDF_FILES := test_cdf.o
-
-test_cdf: $(TEST_CDF)
-
-test_cdf: $(TEST_CDF_FILES)
-	$(CXX) $(CXXFLAGS) $(TEST_CDF_FILES) -o $@ $(LIBDIR) $(LIBS)
+$(TESTS): %: %.o
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LIBDIR) $(LIBS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm $(TEST_CDF)
+	rm $(TESTS) $(addsuffix .o,$(TESTS))

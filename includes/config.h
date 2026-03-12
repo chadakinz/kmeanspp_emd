@@ -12,7 +12,7 @@ struct Config {
 
 int NUM_CLUSTERS;
 float EPSILON;
-int PPF_SIZE;
+int PPF_SIZE = 50;
 std::string INPUT_FILE;
 std::string OUTPUT_FILE;
 
