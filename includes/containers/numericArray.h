@@ -11,6 +11,7 @@ private:
     int N;
 
 public:
+    NumericArray(): N(0){}
     NumericArray(int n) : N(n) {_data.resize(n);}
 
     T& operator[](std::size_t i){ return _data[i]; }
@@ -18,7 +19,7 @@ public:
 
     bool operator==(const NumericArray& b) const{
         bool bool1 = true;
-        for(int i = 0; i < b.size(); i++){
+        for(int i = 0; i < N; i++){
             bool1 &= (*this)[i] == b[i];
         }
         return bool1;
@@ -81,6 +82,19 @@ public:
         }
         std::cout << std::endl;
     }
+    NumericArray operator/(T n){
+        NumericArray c(N);
+        for(int i = 0; i < N; i++){
+            c[i] = _data[i]/n;
+        }
+        return c;
+    }
+    void zero(){
+        for(int i = 0; i < N; i++){
+            _data[i] = T{};
+        }
+    }
+    int size(){return N;}
     auto begin() { return _data.begin(); }
     auto end() { return _data.end(); }
     auto begin() const { return _data.begin(); }

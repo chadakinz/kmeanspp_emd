@@ -17,18 +17,37 @@ namespace kmeans {
         std::vector<PPF<T>> ppfs;
         std::vector<T> upper_bounds;
         std::vector<T> lower_bounds;
+        std::vector<int> cluster_assignments;
+        std::vector<int> cluster_size;
         std::mt19937 gen;
+        std::vector<PPF<T>> new_clusters;
+        std::vector<bool> r;
 
-        void update_probability_vector(const NumericArray<T>& distances, const  std::vector<std::size_t>& updated_distance
-                ,const T& sum, NumericArray<T>& probs, const int& updated_distance_size);
+        void update_probability_vector(const NumericArray<T>& distances
+                ,const T& sum, NumericArray<T>& probs);
+
+
+        inline std::vector<T> get_vector_s();
+
     public:
         std::vector<PPF<T>> clusters;
         WKmeans(int data_size, int number_clusters, float eps, std::vector<PDF<T>>& prob_dense_funcs,
                          std::vector<CDF<T>>& cum_dense_funcs, std::vector<PPF<T>>& percent_point_funcs, int f, int seed = 0);
 
         void init_clusters();
+        void init_bounds();
+        void swap_clusters();
+        void update_bounds();
+        void update_clusters();
+        void assign_new_clusters();
+        const std::vector<T>& get_upper_bounds() const { return upper_bounds; }
+        const std::vector<T>& get_lower_bounds() const { return lower_bounds; }
+        const std::vector<int>& get_cluster_assignments() const { return cluster_assignments; }
+        const std::vector<int>& get_cluster_size() const { return cluster_size; }
+        const std::vector<PPF<T>>& get_new_clusters() const { return new_clusters; }
     };
-
 }
 #include "wkmeans_init_procedure.tpp"
 #include "wkmeans_constructor.tpp"
+#include "wkmeans_clustering.tpp"
+#include "wkmeans_bounds.tpp"

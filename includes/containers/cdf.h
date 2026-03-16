@@ -3,7 +3,6 @@
 #include "../config.h"
 #include <cstddef>
 #include "./ppf.h"
-
 template <typename T>
 class PPF;
 

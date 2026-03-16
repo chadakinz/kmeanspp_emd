@@ -12,6 +12,7 @@ private:
         return (2*val*cdf_size - 1)/2;
     }
 public:
+    PPF() : NumericArray<T>(){}
     PPF(int n) : NumericArray<T>(n){}
     PPF(std::initializer_list<T> values): NumericArray<T>(values.size()){
         int i = 0;
@@ -19,6 +20,13 @@ public:
             (*this)[i] = val;
             i++;
         }
+    }
+    bool operator==(const PPF<T>& other) const {
+        return static_cast<const NumericArray<T>&>(*this) == static_cast<const NumericArray<T>&>(other);
+    }
+    PPF(const NumericArray<T>& arr) : NumericArray<T>(arr.size()) {
+        for(size_t i = 0; i < arr.size(); i++)
+            (*this)[i] = arr[i];
     }
     CDF<T> get_cdf(int cdf_size){
         T ppf_accum = static_cast<T>(1)/(*this).size();
@@ -38,8 +46,29 @@ public:
         val += ppf_accum;
         j = get_index_pdf((*this)[(*this).size()-1], cdf_size);
         cdf[j] = val;
+        T val2{};
+        for(int i = 0; i <cdf_size; i++){
+            if(cdf[i] == 0){
+                cdf[i] = val2;
+            }else{
+                val2 = cdf[i];
+            }
+        }
         return cdf;
     }
+    PPF<T>& operator/=(T n){
+        for(int i = 0; i < this->size(); i++){
+            (*this)[i] /= n;
+        }
+        return *this;
+    }
+    PPF<T>& operator += (PPF<T> a){
+        for(int i = 0; i < this->size(); i++){
+            (*this)[i] += a[i];
+        }
+        return *this;
+    }
+
 };
 
 //Takes two quantile functions and finds the wasserstein distance between them
