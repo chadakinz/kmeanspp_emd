@@ -42,18 +42,19 @@ namespace kmeans{
                 if(upper_bounds[i] <= distance_placeholder1) continue;
                 if(r[i]){
                     distance_placeholder2 = wasserstein_2(clusters[cluster_assignments[i]], ppfs[i]);
-                    //lower_bounds[i * n_clusters + cluster_assignments[i]] = distance_placeholder2;
+                    upper_bounds[i] = distance_placeholder2;
+                    lower_bounds[i * n_clusters + cluster_assignments[i]] = distance_placeholder2;
                     r[i] = false;
                 }else{
                     distance_placeholder2 = upper_bounds[i];
                 }
                 if(distance_placeholder2 > lower_bounds[i * n_clusters + k] || distance_placeholder2 > distance_placeholder1){
                     distance_placeholder3 = wasserstein_2(clusters[k], ppfs[i]);
-                    //lower_bounds[i*n_clusters + k] = distance_placeholder3;
+                    lower_bounds[i*n_clusters + k] = distance_placeholder3;
                     if(distance_placeholder3 < distance_placeholder2){
                         cluster_size[cluster_assignments[i]] -= 1;
                         cluster_assignments[i] = k;
-                        //upper_bounds[i] = distance_placeholder3;
+                        upper_bounds[i] = distance_placeholder3;
                         cluster_size[cluster_assignments[i]] += 1;
                     }
                 }
@@ -62,7 +63,5 @@ namespace kmeans{
     }
 
     template <typename T>
-    void WKmeans<T>::swap_clusters(){
-        std::swap(clusters, new_clusters);
-    }
+    void WKmeans<T>::swap_clusters(){std::swap(clusters, new_clusters);}
 }
