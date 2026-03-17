@@ -11,7 +11,7 @@ using namespace kmeans;
 
 
 TEST_CASE("test_init_clusters", "[init]"){
-    PPF_SIZE = 20;
+    PPF_SIZE = 499;
     build_data();
     WKmeans<float> test_wkmeans(pdfs.size(), 4, EPSILON, pdfs, cdfs, ppfs, 10, 42);
 

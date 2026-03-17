@@ -52,13 +52,12 @@ TEST_CASE("test_update_clusters", "[clustering]"){
 }
 //Assign new clusters needs to test if clusters have been reassigned properly without doing any bounds tricks. And then needs to check to see if the lower and upper bounds are updated properly
 TEST_CASE("test_assign_new_clusters", "[clustering]"){
-    PPF_SIZE = 20;
     build_data();
     WKmeans<float> test_wkmeans(pdfs.size(), 4, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
-    std::vector<int> cluster_assignments(pdfs.size());
-    for(int t = 0; t < 10; t++){
+    std::vector<int> cluster_assignments = test_wkmeans.get_cluster_assignments();
+    for(int t = 0; t < 60; t++){
         test_wkmeans.update_clusters();
         test_wkmeans.update_bounds();
         std::vector<PPF<float>> old_clusters = test_wkmeans.clusters;
@@ -67,7 +66,7 @@ TEST_CASE("test_assign_new_clusters", "[clustering]"){
         float min_val = std::numeric_limits<float>::infinity();
         for(int i = 0; i < pdfs.size(); i++){
             min_val = std::numeric_limits<float>::infinity();
-            for(int k = 0; k < 4; k++){
+            for(int k = 0; k < N_CLUSTERS; k++){
                 float distance = wasserstein_2(ppfs[i], clusters[k]);
                 if (distance < min_val){
                     min_val = distance;
