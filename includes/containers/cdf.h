@@ -2,15 +2,21 @@
 #include "numericArray.h"
 #include "../config.h"
 #include <cstddef>
+#include "./pdf.h"
 #include "./ppf.h"
+
 template <typename T>
 class PPF;
+
+template <typename T>
+class PDF;
 
 template <typename T>
 class CDF: public NumericArray<T>{
 private:
     NumericArray<T> bin_lower;
 public:
+    CDF() : NumericArray<T>(), bin_lower(0) {};
     CDF(int n): NumericArray<T>(n), bin_lower(n){
         for (std::size_t i = 0; i < (*this).size(); i++) {
             (*this)[i] = 0;
@@ -40,6 +46,15 @@ public:
             if (j > PPF_SIZE) break;
         }
         return ppf;
+    }
+
+    PDF<T> get_pdf(){
+        PDF<T> pdf((*this).size());
+        pdf[0] = (*this)[0];
+        for(int i = 1; i < (*this).size(); i++){
+            pdf[i] = (*this)[i] - (*this)[i - 1];
+        }
+        return pdf;
     }
 };
 

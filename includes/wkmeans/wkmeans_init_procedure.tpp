@@ -16,15 +16,13 @@ namespace kmeans{
         T x, y;
         std::size_t M = pdfs.size();
         NumericArray<T> probs(M);
-        NumericArray<T> distances(M);
-        for(std::size_t i = 0; i < M; i++)
-            distances[i] = std::numeric_limits<T>::infinity();
+        NumericArray<T> distances(M, std::numeric_limits<T>::infinity());
         std::uniform_int_distribution<int> dist(0, M-1);
 
         //randomly select the first cluster
         int random_cluster_index = dist(gen);
         PPF<T> current_cluster = ppfs[random_cluster_index];
-        clusters.push_back(current_cluster);
+        clusters[0] = current_cluster;
 
         //iterate through and add clusters 2-n_clusters
         for(std::size_t k = 1; k < n_clusters; k++){
@@ -47,7 +45,7 @@ namespace kmeans{
             //assign the new cluster to whatever data point we randomly selected last
             current_cluster = ppfs[sample];
             // add cluster to list
-            clusters.push_back(current_cluster);
+            clusters[k] = current_cluster;
         }
     }
 

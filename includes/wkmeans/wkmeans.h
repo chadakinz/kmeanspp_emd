@@ -26,20 +26,26 @@ namespace kmeans {
         void update_probability_vector(const NumericArray<T>& distances
                 ,const T& sum, NumericArray<T>& probs);
 
-
         inline std::vector<T> get_vector_s();
+        T delta_clusters(std::vector<PPF<T>>& old_clusters, std::vector<PPF<T>>& new_clusters);
+
+
 
     public:
         std::vector<PPF<T>> clusters;
-        WKmeans(int data_size, int number_clusters, float eps, std::vector<PDF<T>>& prob_dense_funcs,
-                         std::vector<CDF<T>>& cum_dense_funcs, std::vector<PPF<T>>& percent_point_funcs, int f, int seed = 0);
+        WKmeans(int data_size, int number_clusters, float eps, const std::vector<PDF<T>>& prob_dense_funcs,
+                         const std::vector<CDF<T>>& cum_dense_funcs, const std::vector<PPF<T>>& percent_point_funcs, int f, int seed = 0);
 
         void init_clusters();
         void init_bounds();
-        void swap_clusters();
+        inline void swap_clusters();
+        std::vector<PDF<T>>convert_clusters();
         void update_bounds();
         void update_clusters();
         void assign_new_clusters();
+        T get_objective();
+        T run_restart();
+
         const std::vector<T>& get_upper_bounds() const { return upper_bounds; }
         const std::vector<T>& get_lower_bounds() const { return lower_bounds; }
         const std::vector<int>& get_cluster_assignments() const { return cluster_assignments; }
@@ -51,3 +57,5 @@ namespace kmeans {
 #include "wkmeans_constructor.tpp"
 #include "wkmeans_clustering.tpp"
 #include "wkmeans_bounds.tpp"
+#include "wkmeans_metrics.tpp"
+#include "wkmeans_run_procedure.tpp"

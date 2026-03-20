@@ -9,7 +9,7 @@ LIBDIR := -L../lib
 LIBS := -lCatch2Main -lCatch2
 
 
-TESTS := test_pdf test_wkmeans_init_procedure test_cdf test_ppf test_wkmeans_clustering test_wkmeans_bounds
+TESTS := test_pdf test_wkmeans_init_procedure test_cdf test_ppf test_wkmeans_clustering test_wkmeans_bounds test_wkmeans_metrics test_wkmeans_run_procedure test_init_file_proc
 
 all: $(TESTS)
 

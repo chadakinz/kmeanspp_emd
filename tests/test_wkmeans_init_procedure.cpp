@@ -51,7 +51,7 @@ TEST_CASE("test_init_clusters", "[init]"){
 
     PPF<float> second_cluster = ppfs[random_cluster_index];
 
-    second_cluster.print();
+    //second_cluster.print();
 
     REQUIRE(second_cluster == test_wkmeans.clusters[1]);
     for(int i = 0; i < pdfs.size(); i++)
@@ -84,6 +84,22 @@ TEST_CASE("test_init_clusters", "[init]"){
     PPF<float> third_cluster = ppfs[random_cluster_index];
 
     REQUIRE(third_cluster == test_wkmeans.clusters[2]);
+
+}
+TEST_CASE("test_init_clusters_monotone", "[init]"){
+    PPF_SIZE = 50;
+    build_data();
+    WKmeans<float> test_wkmeans(pdfs.size(), 4, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    test_wkmeans.init_clusters();
+    for(int k = 0; k < N_CLUSTERS; k++){
+        float prev_bin, curr_bin;
+        prev_bin = test_wkmeans.clusters[k][0];
+        for(int i = 1; i < PPF_SIZE; i++){
+            curr_bin = test_wkmeans.clusters[k][i];
+            REQUIRE(prev_bin <= curr_bin);
+            prev_bin = curr_bin;
+        }
+    }
 
 }
 // in this function i need to test whether i am intitalizng the bounds properly, to do this i need to check if u(x) is properly assigned

@@ -1,5 +1,5 @@
 
-int N_CLUSTERS = 4;
+int N_CLUSTERS = 10;
 
 inline std::vector<PDF<float>> pdfs2 = {
         PDF<float>{0.0,0.0,0.0,0.086957,0.521739,0.152174,0.043478,0.130435,0.065217,0.0},
@@ -521,4 +521,20 @@ void build_data(){
         temp_ppf = temp_cdf.get_ppf();
         ppfs.push_back(temp_ppf);
     }
+}
+
+bool is_valid_pdf(const PDF<float>& pdf, float tol = 1e-6) {
+    if (pdf.size() == 0) {
+        //printf("PDF IS 0\n");
+        return false;}
+
+    float sum = 0.0f;
+    for (int i = 0; i < pdf.size(); ++i) {
+        if (pdf[i] < 0) return false;
+
+             // all elements must be non-negative
+        sum += pdf[i];
+    }
+
+    return std::abs(sum - 1.0) < tol;  // sum must be ~1
 }

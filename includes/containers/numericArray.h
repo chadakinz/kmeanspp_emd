@@ -13,6 +13,7 @@ private:
 public:
     NumericArray(): N(0){}
     NumericArray(int n) : N(n) {_data.resize(n);}
+    NumericArray(int n, T val): N(n) {_data.resize(n, val);}
 
     T& operator[](std::size_t i){ return _data[i]; }
     const T& operator[](std::size_t i) const {return _data[i]; }

@@ -63,5 +63,16 @@ namespace kmeans{
     }
 
     template <typename T>
-    void WKmeans<T>::swap_clusters(){std::swap(clusters, new_clusters);}
+    inline void WKmeans<T>::swap_clusters(){std::swap(clusters, new_clusters);}
+
+    template <typename T>
+    std::vector<PDF<T>> WKmeans<T>::convert_clusters(){
+        std::vector<PDF<T>> clusters_as_pdfs(n_clusters);
+        for(int k = 0; k < n_clusters; k++){
+            CDF<T> temp_cdf = clusters[k].get_cdf(features);
+            PDF<T> temp_pdf = temp_cdf.get_pdf();
+            clusters_as_pdfs[k] = temp_pdf;
+        }
+        return clusters_as_pdfs;
+    }
 }

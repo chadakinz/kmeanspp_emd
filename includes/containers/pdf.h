@@ -11,6 +11,7 @@ class CDF;
 template <typename T>
 class PDF: public NumericArray<T>{
 public:
+    PDF() : NumericArray<T>(){}
     PDF(int n): NumericArray<T>(n){}
 
     PDF(std::initializer_list<T> values): NumericArray<T>(values.size()){
