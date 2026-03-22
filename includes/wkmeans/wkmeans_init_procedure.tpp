@@ -13,6 +13,7 @@ namespace kmeans{
     template<typename T>
     void WKmeans<T>::init_clusters(){
         T sum{};
+        std::fill(cluster_size.begin(), cluster_size.end(), 0);
         T x, y;
         std::size_t M = pdfs.size();
         NumericArray<T> probs(M);

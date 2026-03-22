@@ -1,13 +1,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include "wkmeans/wkmeans.h"
-#include <iostream>
-#include "containers/pdf.h"
 #include "containers/ppf.h"
-#include "containers/cdf.h"
 #include "config.h"
 #include "test_objects.h"
 #include <limits>
-
 
 using namespace kmeans;
 
@@ -62,7 +58,6 @@ TEST_CASE("test_assign_new_clusters", "[clustering]"){
     for(int t = 0; t < 60; t++){
         test_wkmeans.update_clusters();
         test_wkmeans.update_bounds();
-        std::vector<PPF<float>> old_clusters = test_wkmeans.clusters;
         test_wkmeans.swap_clusters();
         std::vector<PPF<float>> clusters = test_wkmeans.clusters;
         float min_val = std::numeric_limits<float>::infinity();
@@ -77,7 +72,6 @@ TEST_CASE("test_assign_new_clusters", "[clustering]"){
             }
         }
         test_wkmeans.assign_new_clusters();
-        std::cout << "delta clusters for iter " << t << ": " << delta_clusters(old_clusters, clusters) << "\n";
         REQUIRE(cluster_assignments == test_wkmeans.get_cluster_assignments());
 }
 

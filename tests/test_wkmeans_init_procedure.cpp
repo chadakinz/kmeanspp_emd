@@ -1,9 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "wkmeans/wkmeans.h"
-#include <iostream>
-#include "containers/pdf.h"
 #include "containers/ppf.h"
-#include "containers/cdf.h"
 #include "config.h"
 #include <limits>
 #include "test_objects.h"
@@ -19,9 +16,6 @@ TEST_CASE("test_init_clusters", "[init]"){
     std::uniform_int_distribution<int> dist(0, pdfs.size() - 1);
     //randomly select the first cluster
     int random_cluster_index = dist(gen);
-    //ppfs[random_cluster_index].print();
-    //pdfs[random_cluster_index].print();
-    //cdfs[random_cluster_index].print();
 
     test_wkmeans.init_clusters();
     for (int i = 0; i < 4; i++){

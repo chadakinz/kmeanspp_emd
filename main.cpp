@@ -44,7 +44,7 @@ void worker(const std::vector<PDF<float>>& pdfs, const std::vector<CDF<float>>& 
     printf("INSIDE THREAD\n");
     float objective;
     if (id == 0){printf("INSIDE THREAD\n");}
-    WKmeans<float> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, features, seed);
+    WKmeans<float> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, features, seed + id);
     printf("OBJECT CREATED\n");
     if (id == 0){printf("OBJECT CREATED");}
     while (true){
