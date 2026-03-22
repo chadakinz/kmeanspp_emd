@@ -15,7 +15,7 @@ struct Config {
 
 int NUM_CLUSTERS;
 float EPSILON;
-int PPF_SIZE = 50;
+int PPF_SIZE = 500;
 int N_RESTARTS = 50;
 int N_THREADS = 1;
 int SEED = 0;

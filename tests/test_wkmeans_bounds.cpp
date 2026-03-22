@@ -28,9 +28,9 @@ TEST_CASE("test_update_bounds", "[bounds]"){
     REQUIRE(upper_bounds == test_wkmeans.get_upper_bounds());
 
     for(int i = 0; i < pdfs.size(); i++){
-        for(int k = 0; k < 4; k++){
+        for(int k = 0; k < N_CLUSTERS; k++){
             float distance = wasserstein_2(clusters[k], new_clusters[k]);
-            lower_bounds[i*4 + k] = std::max(lower_bounds[i*4 + k] - distance, float{});
+            lower_bounds[i*N_CLUSTERS + k] = std::max(lower_bounds[i*N_CLUSTERS + k] - distance, float{});
         }
     }
     REQUIRE(lower_bounds == test_wkmeans.get_lower_bounds());

@@ -35,7 +35,6 @@ public:
         os << "]";
         return os;
     }
-
     NumericArray operator+(const NumericArray& b){
         NumericArray x(N);
         for(int i = 0; i < N; i++){

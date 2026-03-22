@@ -6,7 +6,6 @@ namespace kmeans{
             : epsilon(eps), d_size(prob_dense_funcs.size()), n_clusters(number_clusters), pdfs(prob_dense_funcs), cdfs(cum_dense_funcs)
             ,ppfs(percent_point_funcs), features(f){
 
-                std::cout << d_size << " d_size " << features << " features " << n_clusters << " n_clusters " << std::endl;
         clusters.resize(n_clusters);
         upper_bounds.resize(d_size);
         lower_bounds.resize(d_size*n_clusters);

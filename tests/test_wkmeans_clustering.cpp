@@ -4,6 +4,7 @@
 #include "config.h"
 #include "test_objects.h"
 #include <limits>
+#include <catch2/catch_approx.hpp>
 
 using namespace kmeans;
 
@@ -24,15 +25,14 @@ float delta_clusters(std::vector<PPF<float>>& old_clusters,
 }
 
 TEST_CASE("test_update_clusters", "[clustering]"){
-    PPF_SIZE = 20;
     build_data();
-    WKmeans<float> test_wkmeans(pdfs.size(), 4, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
     test_wkmeans.update_clusters();
-    std::vector<PPF<float>> new_clusters(4, PPF<float>(PPF_SIZE));
+    std::vector<PPF<float>> new_clusters(N_CLUSTERS, PPF<float>(PPF_SIZE));
     std::vector<PPF<float>> test_new_clusters = test_wkmeans.get_new_clusters();
-    for(int k = 0; k < 4; k++){
+    for(int k = 0; k < N_CLUSTERS; k++){
         new_clusters[k].zero();
     }
 
@@ -48,21 +48,50 @@ TEST_CASE("test_update_clusters", "[clustering]"){
 }
 //Assign new clusters needs to test if clusters have been reassigned properly without doing any bounds tricks. And then needs to check to see if the lower and upper bounds are updated properly
 TEST_CASE("test_assign_new_clusters", "[clustering]"){
-    PPF_SIZE = 100;
     build_data();
-
     WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<float> test_wkmeans2(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
-    std::vector<int> cluster_assignments = test_wkmeans.get_cluster_assignments();
+    test_wkmeans2.init_clusters();
+    test_wkmeans2.init_bounds();
+    REQUIRE(test_wkmeans.get_lower_bounds() == test_wkmeans2.get_lower_bounds());
+    REQUIRE(test_wkmeans.get_upper_bounds() == test_wkmeans2.get_upper_bounds());
+    REQUIRE(test_wkmeans.get_cluster_assignments() == test_wkmeans2.get_cluster_assignments());
+    REQUIRE(test_wkmeans.get_cluster_size() ==test_wkmeans2.get_cluster_size());
+    const auto& clusters1 = test_wkmeans.clusters;
+    const auto& clusters2 = test_wkmeans2.clusters;
+    REQUIRE(clusters1.size() == clusters2.size());
+    for (size_t k = 0; k < clusters1.size(); k++) {
+        REQUIRE(clusters1[k] == clusters2[k]); // uses your defined operator==
+    }
+
+REQUIRE(test_wkmeans2.clusters == test_wkmeans.clusters);
+    std::vector<int> cluster_assignments(pdfs.size());
     for(int t = 0; t < 60; t++){
         test_wkmeans.update_clusters();
         test_wkmeans.update_bounds();
         test_wkmeans.swap_clusters();
+        test_wkmeans2.update_clusters();
+        test_wkmeans2.old_update_bounds();
+        test_wkmeans2.swap_clusters();
+        REQUIRE(test_wkmeans.clusters == test_wkmeans2.clusters);
+        REQUIRE(test_wkmeans.get_cluster_assignments() == test_wkmeans2.get_cluster_assignments());
+        REQUIRE(test_wkmeans.get_cluster_size()== test_wkmeans2.get_cluster_size());
+        //REQUIRE(test_wkmeans2.get_lower_bounds() == test_wkmeans.get_lower_bounds());
+        auto lb1 = test_wkmeans.get_lower_bounds();
+        auto lb2 = test_wkmeans2.get_lower_bounds();
+        for (size_t i = 0; i < lb1.size(); i++) {
+            REQUIRE(lb1[i] == Catch::Approx(lb2[i]).epsilon(1e-5));
+        }
+        REQUIRE(test_wkmeans2.get_upper_bounds() == test_wkmeans.get_upper_bounds());
+
         std::vector<PPF<float>> clusters = test_wkmeans.clusters;
-        float min_val = std::numeric_limits<float>::infinity();
+        test_wkmeans.assign_new_clusters();
+        test_wkmeans2.assign_new_clusters();
+
         for(int i = 0; i < pdfs.size(); i++){
-            min_val = std::numeric_limits<float>::infinity();
+            float min_val = std::numeric_limits<float>::infinity();
             for(int k = 0; k < N_CLUSTERS; k++){
                 float distance = wasserstein_2(ppfs[i], clusters[k]);
                 if (distance < min_val){
@@ -71,8 +100,8 @@ TEST_CASE("test_assign_new_clusters", "[clustering]"){
                 }
             }
         }
-        test_wkmeans.assign_new_clusters();
         REQUIRE(cluster_assignments == test_wkmeans.get_cluster_assignments());
+        REQUIRE(test_wkmeans2.get_cluster_assignments() == test_wkmeans.get_cluster_assignments());
 }
 
 }

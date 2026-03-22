@@ -10,7 +10,7 @@ using namespace kmeans;
 TEST_CASE("test_init_clusters", "[init]"){
     PPF_SIZE = 499;
     build_data();
-    WKmeans<float> test_wkmeans(pdfs.size(), 4, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
 
     std::mt19937 gen(42);
     std::uniform_int_distribution<int> dist(0, pdfs.size() - 1);
@@ -83,7 +83,7 @@ TEST_CASE("test_init_clusters", "[init]"){
 TEST_CASE("test_init_clusters_monotone", "[init]"){
     PPF_SIZE = 50;
     build_data();
-    WKmeans<float> test_wkmeans(pdfs.size(), 4, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     for(int k = 0; k < N_CLUSTERS; k++){
         float prev_bin, curr_bin;
@@ -99,7 +99,7 @@ TEST_CASE("test_init_clusters_monotone", "[init]"){
 // in this function i need to test whether i am intitalizng the bounds properly, to do this i need to check if u(x) is properly assigned
 TEST_CASE("test_init_bounds", "[init]"){
     build_data();
-    WKmeans<float> test_wkmeans(pdfs.size(), 4, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
     //verify that the upperbounds of init_bounds is going to be the min cluster assignment of each datapoint

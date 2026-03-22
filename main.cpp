@@ -2,7 +2,7 @@
 #include <iostream>
 #include "wkmeans/wkmeans.h"
 #include <utility>
-#include <algorithm>
+#include <chrono>
 #include <array>
 #include "containers/cdf.h"
 #include "containers/pdf.h"
@@ -14,7 +14,6 @@
 #include <mutex>
 #include <limits>
 #include <cstring>
-#include <functional>
 using namespace kmeans;
 std::mutex mtx;
 std::atomic<float> global_min(std::numeric_limits<float>::infinity());
@@ -40,13 +39,14 @@ void write_clusters_to_output(const std::vector<PDF<float>>& clusters){
 
 void worker(const std::vector<PDF<float>>& pdfs, const std::vector<CDF<float>>& cdfs, const std::vector<PPF<float>>& ppfs,
             int features, int id, int seed = 0){
-    std::cout << pdfs.size() << " pdfs.size()" << std::endl;
+    //std::cout << pdfs.size() << " pdfs.size()" << std::endl;
     float objective;
     WKmeans<float> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, features, seed + id);
     while (true){
         int old = counter.fetch_add(1);
 
         if(old >= N_RESTARTS) break;
+
         objective = wkmeans_obj.run_restart();
         if (objective >= global_min) continue;
         std::lock_guard<std::mutex> lock(mtx);
@@ -140,7 +140,6 @@ int main(int argc, char* argv[]){
     pdfs.reserve(d_size);
     cdfs.reserve(d_size);
     ppfs.reserve(d_size);
-    std::cout << d_size << " d_size" << std::endl;
     init_distributions(INPUT_FILE, pdfs, cdfs, ppfs, feature);
     std::vector<std::thread> threads;
     threads.reserve(N_THREADS);

@@ -45,6 +45,7 @@ namespace kmeans {
         void assign_new_clusters();
         T get_objective();
         T run_restart();
+        void old_update_bounds();
 
         const std::vector<T>& get_upper_bounds() const { return upper_bounds; }
         const std::vector<T>& get_lower_bounds() const { return lower_bounds; }
