@@ -41,19 +41,13 @@ void write_clusters_to_output(const std::vector<PDF<float>>& clusters){
 void worker(const std::vector<PDF<float>>& pdfs, const std::vector<CDF<float>>& cdfs, const std::vector<PPF<float>>& ppfs,
             int features, int id, int seed = 0){
     std::cout << pdfs.size() << " pdfs.size()" << std::endl;
-    printf("INSIDE THREAD\n");
     float objective;
-    if (id == 0){printf("INSIDE THREAD\n");}
     WKmeans<float> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, features, seed + id);
-    printf("OBJECT CREATED\n");
-    if (id == 0){printf("OBJECT CREATED");}
     while (true){
         int old = counter.fetch_add(1);
-        printf("COUNTER FETCH ADD?\n");
 
         if(old >= N_RESTARTS) break;
         objective = wkmeans_obj.run_restart();
-        std::cout << "RAN RESTART OBJECTIVE RECEIVED: " << objective << std::endl;
         if (objective >= global_min) continue;
         std::lock_guard<std::mutex> lock(mtx);
         if (objective < global_min.load()){
@@ -147,17 +141,13 @@ int main(int argc, char* argv[]){
     cdfs.reserve(d_size);
     ppfs.reserve(d_size);
     std::cout << d_size << " d_size" << std::endl;
-    printf("RESERVED D_SIZE\n");
     init_distributions(INPUT_FILE, pdfs, cdfs, ppfs, feature);
-    printf("INIT DISTS\n");
-    pdfs[5].print();
     std::vector<std::thread> threads;
     threads.reserve(N_THREADS);
     std::cout << N_THREADS << " N_THREADS <-----" << std::endl;
     for(int i = 0; i < N_THREADS; i++){
         threads.emplace_back(worker, std::cref(pdfs), std::cref(cdfs), std::cref(ppfs), feature, i, SEED);
     }
-    printf("FINISHED BUILDING THREADS\n");
     for (auto& t : threads) {
         t.join();
     }
