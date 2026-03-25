@@ -46,6 +46,7 @@ namespace kmeans {
         T get_objective();
         T run_restart();
         void old_update_bounds();
+        T old_get_objective();
 
         const std::vector<T>& get_upper_bounds() const { return upper_bounds; }
         const std::vector<T>& get_lower_bounds() const { return lower_bounds; }

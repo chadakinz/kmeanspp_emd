@@ -5,8 +5,8 @@
 #include "config.h"
 #include "test_objects.h"
 using namespace kmeans;
-bool valid_cluster(const PPF<float>& cluster){
-    float prev_bin, curr_bin;
+bool valid_cluster(const PPF<double>& cluster){
+    double prev_bin, curr_bin;
     bool B = false;
     prev_bin = cluster[0];
     for(int i = 1; i < PPF_SIZE; i++){
@@ -20,7 +20,7 @@ bool valid_cluster(const PPF<float>& cluster){
 
 TEST_CASE("run_procedure_test1", "[run]"){
     build_data();
-    WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
     for(int t = 0; t < 50; t++){
@@ -32,7 +32,7 @@ TEST_CASE("run_procedure_test1", "[run]"){
         }
         test_wkmeans.assign_new_clusters();
     }
-    std::vector<PDF<float>> temp_pdfs = test_wkmeans.convert_clusters();
+    std::vector<PDF<double>> temp_pdfs = test_wkmeans.convert_clusters();
     for(int k = 0; k < N_CLUSTERS; k++){
         REQUIRE(is_valid_pdf(temp_pdfs[k]));
     }

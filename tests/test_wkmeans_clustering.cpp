@@ -8,30 +8,30 @@
 
 using namespace kmeans;
 
-float delta_clusters(std::vector<PPF<float>>& old_clusters,
-                     std::vector<PPF<float>>& new_clusters)
+double delta_clusters(std::vector<PPF<double>>& old_clusters,
+                     std::vector<PPF<double>>& new_clusters)
 {
     if (old_clusters.size() != new_clusters.size())
         throw std::runtime_error("Cluster vectors must be the same size");
 
-    float sum = 0.0f;
+    double sum = 0.0f;
     std::size_t k = old_clusters.size();
 
     for (std::size_t i = 0; i < k; i++) {
         sum += wasserstein_2(old_clusters[i], new_clusters[i]);
     }
 
-    return sum / static_cast<float>(k);
+    return sum / static_cast<double>(k);
 }
 
 TEST_CASE("test_update_clusters", "[clustering]"){
     build_data();
-    WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
     test_wkmeans.update_clusters();
-    std::vector<PPF<float>> new_clusters(N_CLUSTERS, PPF<float>(PPF_SIZE));
-    std::vector<PPF<float>> test_new_clusters = test_wkmeans.get_new_clusters();
+    std::vector<PPF<double>> new_clusters(N_CLUSTERS, PPF<double>(PPF_SIZE));
+    std::vector<PPF<double>> test_new_clusters = test_wkmeans.get_new_clusters();
     for(int k = 0; k < N_CLUSTERS; k++){
         new_clusters[k].zero();
     }
@@ -49,8 +49,8 @@ TEST_CASE("test_update_clusters", "[clustering]"){
 //Assign new clusters needs to test if clusters have been reassigned properly without doing any bounds tricks. And then needs to check to see if the lower and upper bounds are updated properly
 TEST_CASE("test_assign_new_clusters", "[clustering]"){
     build_data();
-    WKmeans<float> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
-    WKmeans<float> test_wkmeans2(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    WKmeans<double> test_wkmeans2(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
     test_wkmeans2.init_clusters();
@@ -86,14 +86,14 @@ REQUIRE(test_wkmeans2.clusters == test_wkmeans.clusters);
         }
         REQUIRE(test_wkmeans2.get_upper_bounds() == test_wkmeans.get_upper_bounds());
 
-        std::vector<PPF<float>> clusters = test_wkmeans.clusters;
+        std::vector<PPF<double>> clusters = test_wkmeans.clusters;
         test_wkmeans.assign_new_clusters();
         test_wkmeans2.assign_new_clusters();
 
         for(int i = 0; i < pdfs.size(); i++){
-            float min_val = std::numeric_limits<float>::infinity();
+            double min_val = std::numeric_limits<double>::infinity();
             for(int k = 0; k < N_CLUSTERS; k++){
-                float distance = wasserstein_2(ppfs[i], clusters[k]);
+                double distance = wasserstein_2(ppfs[i], clusters[k]);
                 if (distance < min_val){
                     min_val = distance;
                     cluster_assignments[i] = k;

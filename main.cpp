@@ -110,14 +110,14 @@ std::pair<int,int> get_dimensions(const std::string& file_name) {
 int main(int argc, char* argv[]){
     Config cfg;
     int feature, d_size;
-    std::string output_file = "output.csv";
+    std::string output_file = "output_999.csv";
 
     //TODO: need to pass an argument specifying how many restarts the user wants to run the algorithm with
     if (argc == 1){
         std::cout << "(flag, default): description" << std::endl;
         std::cout << "(-k, 10): number of clusters" << std::endl;
         std::cout << "(-i, NONE): name of the input file (must be a csv)" << std::endl;
-        std::cout << "(-o, output.csv): name of the output file" << std::endl;
+        std::cout << "(-o, output_999.csv): name of the output file" << std::endl;
         std::cout << "(-s, 1e-4): epsilon parameter used to specify when program should terminate" << std::endl;
         std::cout << "(-u, 20): size of percent point function bins" << std::endl;
         std::cout << "(-N, 50): Number of restarts to run algorithm" << std::endl;

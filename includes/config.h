@@ -4,7 +4,7 @@
 struct Config {
     int num_clusters = 10;
     float epsilon = 1e-4;
-    std::string output_file = "output.csv";
+    std::string output_file = "output_999.csv";
     std::string input_file;
     int ppf_size = 50;
     int n_threads = 1;
