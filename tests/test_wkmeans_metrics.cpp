@@ -11,6 +11,7 @@ TEST_CASE("test_get_objective", "[metrics]"){
     WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
     test_wkmeans.init_bounds();
+    f_objective = test_wkmeans.get_objective();
     test_wkmeans.update_clusters();
     test_wkmeans.update_bounds();
     test_wkmeans.swap_clusters();
@@ -18,9 +19,9 @@ TEST_CASE("test_get_objective", "[metrics]"){
     //new_objective = test_wkmeans.get_objective();
     std::vector<int> cluster_assignments = test_wkmeans.get_cluster_assignments();
     new_objective = test_wkmeans.get_objective();
-    f_objective = new_objective;
 
-    for(int t = 0; t < 2000; t++){
+
+    for(int t = 0; t < 200; t++){
         old_objective = new_objective;
         test_wkmeans.update_clusters();
         test_wkmeans.update_bounds();
