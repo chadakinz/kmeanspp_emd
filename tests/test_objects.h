@@ -1,6 +1,7 @@
+#pragma once
 #include "config.h"
 
-int N_CLUSTERS = 10;
+inline int N_CLUSTERS =11;
 
 inline std::vector<PDF<double>> pdfs2 = {
         PDF<double>{0.0,0.0,0.0,0.086957,0.521739,0.152174,0.043478,0.130435,0.065217,0.0},
@@ -512,11 +513,14 @@ inline std::vector<PDF<double>> pdfs = {
 inline std::vector<CDF<double>> cdfs;
 inline std::vector<PPF<double>> ppfs;
 
-void build_data(){
+inline void build_data(){
+    cdfs.clear();
+    ppfs.clear();
     CDF<double> temp_cdf(10);
     PPF<double> temp_ppf(PPF_SIZE);
 
     for(int i = 0; i < pdfs.size(); i++){
+        pdfs[i].normalize();
         temp_cdf = pdfs[i].get_cdf();
         cdfs.push_back(temp_cdf);
 
@@ -533,7 +537,6 @@ bool is_valid_pdf(const PDF<T>& pdf, T tol = 1e-6) {
     T sum{};
     for (int i = 0; i < pdf.size(); ++i) {
         if (pdf[i] < T{}) return false;
-
              // all elements must be non-negative
         sum += pdf[i];
     }

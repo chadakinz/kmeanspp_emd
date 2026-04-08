@@ -2,7 +2,7 @@ CXX = g++
 
 CXXFLAGS  := -std=c++20 -Wall -g
 
-INCLUDES  := -I../includes -I../third_party
+INCLUDES  := -I../includes -I../third_party/Catch2/src
 
 LIBDIR := -L../lib
 

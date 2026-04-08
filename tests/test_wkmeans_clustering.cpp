@@ -25,6 +25,7 @@ double delta_clusters(std::vector<PPF<double>>& old_clusters,
 }
 
 TEST_CASE("test_update_clusters", "[clustering]"){
+    PPF_SIZE = 500;
     build_data();
     WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     test_wkmeans.init_clusters();
@@ -48,6 +49,7 @@ TEST_CASE("test_update_clusters", "[clustering]"){
 }
 //Assign new clusters needs to test if clusters have been reassigned properly without doing any bounds tricks. And then needs to check to see if the lower and upper bounds are updated properly
 TEST_CASE("test_assign_new_clusters", "[clustering]"){
+    PPF_SIZE = 500;
     build_data();
     WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
     WKmeans<double> test_wkmeans2(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
@@ -66,7 +68,7 @@ TEST_CASE("test_assign_new_clusters", "[clustering]"){
         REQUIRE(clusters1[k] == clusters2[k]); // uses your defined operator==
     }
 
-REQUIRE(test_wkmeans2.clusters == test_wkmeans.clusters);
+    REQUIRE(test_wkmeans2.clusters == test_wkmeans.clusters);
     std::vector<int> cluster_assignments(pdfs.size());
     for(int t = 0; t < 60; t++){
         test_wkmeans.update_clusters();

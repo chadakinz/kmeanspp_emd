@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <vector>
 #include <iostream>
 #include "wkmeans/wkmeans.h"
@@ -13,49 +14,32 @@
 #include <limits>
 #include <cstring>
 
+//input: folder of samples, all should be the same size
+//output: cluster assignments following the batch kmeans algorithm
+//initalize clusters to begin, standard procedure
+//input needs to be directory and file name. Going to assume file names are in the format director/filename_i where i is going to be each sample
+//files must begin at 0, where 0 is going to be the intialization of clusters
 using namespace kmeans;
-std::mutex mtx;
-std::atomic<float> global_min(std::numeric_limits<float>::infinity());
 
-std::atomic<int> counter(0);
-
-void write_clusters_to_output(const std::vector<PDF<float>>& clusters){
-    std::ofstream out(OUTPUT_FILE);
-    if (!out.is_open()) {
-        std::cerr << "Error: cannot open file " << OUTPUT_FILE << "\n";
-        return;
-    }
-    for (const auto& pdf : clusters) {
-        for (size_t i = 0; i < pdf.size(); ++i) {
-            out << pdf[i];
-            if (i + 1 < pdf.size()) out << ",";  // comma between elements
-        }
-        out << "\n";  // new row per PDF
-    }
-    out.close();
-
+std::string build_path(const std::string& dir, const std::string& filename) {
+    fs::path full_path = fs::path(dir) / filename;
+    return full_path.string();  // convert to std::string
 }
 
-void worker(const std::vector<PDF<float>>& pdfs, const std::vector<CDF<float>>& cdfs, const std::vector<PPF<float>>& ppfs,
-            int features, int id, int seed = 0){
-    //std::cout << pdfs.size() << " pdfs.size()" << std::endl;
-    float objective;
-    WKmeans<float> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, features, seed + id);
-    while (true){
-        int old = counter.fetch_add(1);
+int number_of_files(const std::string& directory, const std::string& file_name){
+    int file_size = file_name.size();
+    int count = 0;
+    std::string prefix = file_name + "_";
+    for(auto& p: fs::directory_iterator(directory)){
+        std::string filename = p.path().filename().string();
 
-        if(old >= N_RESTARTS) break;
-
-        objective = wkmeans_obj.run_restart();
-        if (objective >= global_min) continue;
-        std::lock_guard<std::mutex> lock(mtx);
-        if (objective < global_min.load()){
-            std::cout << "NEW GLOBAL MIN OBJECTIVE FOUND AFTER" << counter << " RESTARTS" << std::endl;
-            std::cout << "Old objective: " << global_min.load() << " New Objective: " << objective << std::endl;
-            global_min = objective;
-            write_clusters_to_output(wkmeans_obj.convert_clusters());
+        if(!fs::is_regular_file(p)) continue;
+        if(filename.size() < file_size + 1) continue;
+        if(filename.substr(0, file_size + 1) == prefix){
+            count ++;
         }
     }
+    return count;
 }
 void process_input(int argc, char* argv[], Config& cfg){
     for(int i = 1; i < argc; i++){  // start at 1 (skip program name)
@@ -84,6 +68,9 @@ void process_input(int argc, char* argv[], Config& cfg){
         else if (strcmp(argv[i], "-S") == 0 && i + 1 < argc){
             cfg.seed = std::stoi(argv[++i]);
         }
+        else if(strcmp(argv[i], "-d") == 0 && i + 1 < argc){
+            cfg.directory = argv[++i];
+        }
         else {
             std::cerr << "Unknown or incomplete argument: " << argv[i] << std::endl;
         }
@@ -106,15 +93,15 @@ std::pair<int,int> get_dimensions(const std::string& file_name) {
     return {rows, columns};
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]) {
     Config cfg;
-    int feature, d_size;
     std::string output_file = "output_999.csv";
 
-    if (argc == 1){
+    if (argc == 1) {
         std::cout << "(flag, default): description" << std::endl;
         std::cout << "(-k, 10): number of clusters" << std::endl;
         std::cout << "(-i, NONE): name of the input file (must be a csv)" << std::endl;
+        std::cout << "(-d, \"\"): name of the directory" << std::endl;
         std::cout << "(-o, output_999.csv): name of the output file" << std::endl;
         std::cout << "(-s, 1e-4): epsilon parameter used to specify when program should terminate" << std::endl;
         std::cout << "(-u, 20): size of percent point function bins" << std::endl;
@@ -122,28 +109,35 @@ int main(int argc, char* argv[]){
         std::cout << "(-t, 1): number of threads to run the algorithm (cannot exceed Number of restarts)" << std::endl;
         std::cout << "(S, 0): choose the specify the seed for the random number generator" << std::endl;
     }
-    //processing inputs
     process_input(argc, argv, cfg);
     init_constants(cfg);
-    std::pair<int, int> pair = get_dimensions(INPUT_FILE);
 
-    d_size = pair.first;
-    feature = pair.second;
-    std::vector<PDF<float>> pdfs;
-    std::vector<CDF<float>> cdfs;
-    std::vector<PPF<float>> ppfs;
+    std::string init_file = build_path(DIRECTORY, INPUT_FILE + "_0");
+    std::pair<int, int> pair = get_dimensions(init_file);
+    int d_size = pair.first;
+    int feature = pair.second;
+
+    std::vector<PDF<double>> pdfs;
+    std::vector<CDF<double>> cdfs;
+    std::vector<PPF<double>> ppfs;
     pdfs.reserve(d_size);
     cdfs.reserve(d_size);
     ppfs.reserve(d_size);
-    init_distributions(INPUT_FILE, pdfs, cdfs, ppfs, feature);
-    std::vector<std::thread> threads;
-    threads.reserve(N_THREADS);
-    for(int i = 0; i < N_THREADS; i++){
-        threads.emplace_back(worker, std::cref(pdfs), std::cref(cdfs), std::cref(ppfs), feature, i, SEED);
-    }
-    for (auto& t : threads) {
-        t.join();
-    }
-    return 0;
-}
 
+    int number_samples = number_of_files(DIRECTORY, INPUT_FILE);
+
+    init_distributions(init_file, pdfs, cdfs, ppfs);
+
+    //initialize the first clusters using the 0 sample
+    WKmeans<double> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, feature, SEED);
+    double objective = wkmeans_obj.run_restart();
+
+    for(int i = 1; i < number_samples; i++){
+        std::vector<PPF<double>> previous_clusters = wkmeans_obj.clusters;
+        std::string format_file = "_" + std::stoi(i);
+        std::string init_file = build_path(DIRECTORY, format_file);
+        init_distributions(init_file, pdfs, cdfs, ppfs);
+        //todo implement a way to reset pdfs, cdfs, ppfs from an already created object.
+        WKmeans<double> wkmeans_obj.init_batch_kmeans(pdfs, cdfs, ppfs, previous_clusters);
+    }
+}

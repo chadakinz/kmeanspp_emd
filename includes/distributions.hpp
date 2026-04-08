@@ -31,7 +31,6 @@ void init_distributions(const std::string& file_name, std::vector<PDF<T>>& pdfs,
     std::string line;
     CDF<T> temp_cdf(features);
     PDF<T> temp_pdf(features);
-    printf("CREATED TEMPS\n");
     while(std::getline(file, line)){
         process_line_into_pdf(line, features, temp_pdf);
         temp_pdf.normalize();

@@ -1,5 +1,6 @@
 #include <limits>
 #include <utility>
+#include <cstdint>
 namespace kmeans{
     //todo: find better name
     template<typename T>
@@ -25,6 +26,18 @@ namespace kmeans{
         }
         for(int k = 0; k < n_clusters; k++){
             new_clusters[k] = sum_cluster[k]/cluster_size[k];
+        }
+    }
+    template <typename T>
+    void WKmeans<T>::mini_batch_update_clusters(const std::vector<uint32_t>& sizes){
+        std::vector<PPF<T>> sum_cluster(n_clusters, PPF<T>(PPF_SIZE));
+
+        for(int i = 0; i < d_size; i++){
+            sum_cluster[cluster_assignments[i]] += ppfs[i];
+        }
+        for(int k = 0; k < n_clusters; k++){
+            PPF<T> cluster_k = sizes[k] * new_clusters[k];
+            new_clusters[k] = (sum_cluster[k] + cluster_k)/(cluster_size[k] + sizes[k]);
         }
     }
     //Function that updates the cluster assignments of data using the upper and lower bound vectors
