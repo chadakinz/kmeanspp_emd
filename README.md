@@ -97,51 +97,36 @@ This function assigns each data point to its nearest cluster center and initiali
 computes the distance to all cluster centers, assigns the point to the closest one, and stores the corresponding distance 
 as an upper bound. Distances to all clusters are stored as lower bounds. Cluster sizes are computed using thread-local
 counts and aggregated after parallel execution.
-
 ### Update Procedure
 
 The update phase in `run_restart()` primarily consists of `update_clusters()` and `update_bounds()`. These steps recompute cluster centers and adjust distance bounds efficiently.
 
 **update_clusters():**  
 This function recomputes cluster centers based on current assignments. It first initializes an accumulator (`sum_cluster`) for each cluster. Then, for each data point, it adds its PPF to the sum of its assigned cluster. After aggregating all points, each new cluster center is computed as the average of its assigned points:
-
-```math 
+```math
 \text{new\_clusters}[k] = \frac{\sum_{\{i: c_i = k\}} \text{ppfs}[i]}{\text{cluster\_size}[k]}
 ```
-$$
-\text{new\_clusters}[k] = \frac{\sum_{\{i: c_i = k\}} \text{ppfs}[i]}{\text{cluster\_size}[k]}
-$$
-`
-
 This is the standard centroid update step adapted to PPFs.
 
 **update_bounds():**  
 This function updates upper and lower distance bounds after cluster centers move.
 
 - First, it computes **cluster deltas**, i.e., the movement of each cluster:
-  \[
+  ```math
   \delta_k = W_2(\text{clusters}[k], \text{new\_clusters}[k])
-  \]
+  ```
 
 - Then, in parallel, it computes for each point the movement of its assigned cluster and stores these deltas.
 
 - In a sequential phase:
     - The **upper bound** for each point is increased by the movement of its assigned cluster:
-      \[
+      ```math
       \text{upper\_bounds}[i] \mathrel{+}= \delta_{c_i}
-      \]
+      ```
     - A flag `r[i]` is set to indicate the bound needs reconsideration.
     - The **lower bounds** to all clusters are decreased using the triangle inequality:
-      \[
+      ```math
       \text{lower\_bounds}[i,k] = \max\big(\text{lower\_bounds}[i,k] - \delta_k,\ 0\big)
-      \]
+      ```
 
 This avoids recomputing all distances by adjusting bounds based on how much cluster centers moved.
-
-**Summary:**  
-`update_clusters()` recomputes centroids from assignments, while `update_bounds()` efficiently updates distance bounds using cluster movement, enabling faster convergence by reducing unnecessary distance calculations.
-
-
-
-
-
