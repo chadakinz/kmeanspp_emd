@@ -109,32 +109,77 @@ This function recomputes cluster centers based on current assignments. It first 
 This is the standard centroid update step adapted to PPFs.
 
 **update_bounds():**  
-This function updates upper and lower distance bounds after cluster centers move.
+The ```update_bounds()``` function updates upper and lower distance bounds after clusters move, reducing unnecessary distance computations.
 
-- First, it computes **cluster deltas**, i.e., the movement of each cluster:
-  ```math
-  \delta_k = W_2(\text{clusters}[k], \text{new\_clusters}[k])
-  ```
 
-- Then, in parallel, it computes for each point the movement of its assigned cluster and stores these deltas.
+1. Compute movement of each cluster:
 
-- In a sequential phase:
-    - The **upper bound** for each point is increased by the movement of its assigned cluster:
-      ```math
-      \text{upper\_bounds}[i] \mathrel{+}= \delta_{c_i}
-      ```
-    - A flag `r[i]` is set to indicate the bound needs reconsideration.
-    - The **lower bounds** to all clusters are decreased using the triangle inequality:
-      ```math
-      \text{lower\_bounds}[i,k] = \max\big(\text{lower\_bounds}[i,k] - \delta_k,\ 0\big)
-      ```
+```cpp
+std::vector<T> cluster_deltas(n_clusters);
+for (int k = 0; k < n_clusters; k++){
+cluster_deltas[k] = wasserstein_2(clusters[k], new_clusters[k]);
+}
+```
 
+2. Set up parallel computation for all points:
+
+```cpp
+int num_threads = std::thread::hardware_concurrency();
+size_t chunk_size = (d_size + num_threads - 1) / num_threads;
+std::vector<std::thread> threads;
+struct ThreadResult {
+std::vector<T> deltas;
+size_t start, end;
+};
+std::vector<ThreadResult> results(num_threads);
+```
+
+3. Phase 1: compute movement for each point’s assigned cluster in parallel:
+
+```cpp
+for (int t = 0; t < num_threads; t++){
+size_t start = t * chunk_size;
+size_t end = std::min(start + chunk_size, static_cast<size_t>(d_size));
+results[t].start = start;
+results[t].end = end;
+results[t].deltas.resize(end - start);
+
+    threads.emplace_back([this, t, start, end, &results](){
+        auto& res = results[t];
+        for (size_t i = 0; i < res.deltas.size(); i++){
+            int cluster_id = cluster_assignments[start + i];
+            res.deltas[i] = wasserstein_2(clusters[cluster_id], new_clusters[cluster_id]);
+        }
+    });
+}
+
+for (auto& th : threads) th.join();
+threads.clear();
+```
+
+4. Phase 2: update upper and lower bounds sequentially:
+
+```cpp
+for (int t = 0; t < num_threads; t++){
+auto& res = results[t];
+for (size_t i = 0; i < res.deltas.size(); i++){
+size_t idx = res.start + i;
+T delta = res.deltas[i];
+
+        upper_bounds[idx] += delta;
+        r[idx] = true;
+
+        size_t base_idx = idx * n_clusters;
+        for (int k = 0; k < n_clusters; k++){
+            lower_bounds[base_idx + k] = std::max(lower_bounds[base_idx + k] - cluster_deltas[k], T{});
+        }
+    }
+}
+```
 This avoids recomputing all distances by adjusting bounds based on how much cluster centers moved.
-# Assign New Clusters
+### Assign New Clusters
 
 The ```assign_new_clusters()``` function reassigns points to clusters using bounds to minimize distance calculations.
-
-## Procedure
 
 1. Get threshold vector:
 
