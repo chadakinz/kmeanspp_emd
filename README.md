@@ -104,9 +104,9 @@ The update phase in `run_restart()` primarily consists of `update_clusters()` an
 
 **update_clusters():**  
 This function recomputes cluster centers based on current assignments. It first initializes an accumulator (`sum_cluster`) for each cluster. Then, for each data point, it adds its PPF to the sum of its assigned cluster. After aggregating all points, each new cluster center is computed as the average of its assigned points:
-\[
+$$
 \text{new\_clusters}[k] = \frac{\sum_{\{i: c_i = k\}} \text{ppfs}[i]}{\text{cluster\_size}[k]}
-\]
+$$
 This is the standard centroid update step adapted to PPFs.
 
 **update_bounds():**  
