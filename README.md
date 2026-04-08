@@ -130,3 +130,50 @@ This function updates upper and lower distance bounds after cluster centers move
       ```
 
 This avoids recomputing all distances by adjusting bounds based on how much cluster centers moved.
+# Assign New Clusters
+
+The ```assign_new_clusters()``` function reassigns points to clusters using bounds to minimize distance calculations.
+
+## Procedure
+
+1. Get threshold vector:
+
+```cpp
+std::vector<T> s = get_vector_s();
+```
+
+2. Loop over points:
+
+```cpp
+for(int i = 0; i < d_size; i++){
+if(upper_bounds[i] <= s[cluster_assignments[i]]) continue;
+```
+
+3. Loop over clusters and skip those that cannot improve the assignment:
+
+```cpp
+for(int k = 0; k < n_clusters; k++){
+if(k == cluster_assignments[i] || upper_bounds[i] <= lower_bounds[i * n_clusters + k]) continue;
+```
+
+4. Preliminary triangle inequality check:
+
+```math
+distance_placeholder1 = 0.5 * W_2(clusters[k], clusters[c_i])
+```
+
+5. Recompute distance if ```r[i]``` is true:
+
+```math
+distance_placeholder2 = W_2(clusters[c_i], ppfs[i])
+```
+
+6. Compute candidate cluster distance and reassign if smaller:
+
+```math
+distance_placeholder3 = W_2(clusters[k], ppfs[i])
+cluster_size[c_i] -= 1
+c_i = k
+upper_bounds[i] = distance_placeholder3
+cluster_size[c_i] += 1
+```
