@@ -171,9 +171,9 @@ distance_placeholder2 = W_2(clusters[c_i], ppfs[i])
 6. Compute candidate cluster distance and reassign if smaller:
 
 ```math
-distance_placeholder3 = W_2(clusters[k], ppfs[i])
-cluster_size[c_i] -= 1
+distance\_placeholder3 = W_2(clusters[k], ppfs[i])
+cluster\_size[c_i] -= 1
 c_i = k
-upper_bounds[i] = distance_placeholder3
-cluster_size[c_i] += 1
+upper\_bounds[i] = distance\_placeholder3
+cluster\_size[c_i] += 1
 ```
