@@ -56,6 +56,13 @@ Then inside the repository run:
 ```
 cmake -B build
 ```
+After building the project run these lines
+```
+cd build
+make
+```
+Upon completing this step you should see two executables, `tests` located in `build`, and `main` located in `build/bin`.
+
 This code is run from main where the parameters of the algorithm are intialized and used to begin the run procedure.
 
 An example of how to run the algorithm (after building it using cmake):

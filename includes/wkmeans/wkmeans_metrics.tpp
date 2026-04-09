@@ -34,7 +34,6 @@ namespace kmeans{
         for(int t = 0; t < num_threads; t++){
             sum += thread_local_sum[t];
         }
-
         return sum;
     }
     template <typename T>
