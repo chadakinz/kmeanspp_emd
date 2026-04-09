@@ -6,12 +6,10 @@ namespace kmeans{
                          std::vector<PPF<T>>& new_clusters)
     {
         T sum = T{};
-        std::size_t k = old_clusters.size();
-
-        for (std::size_t i = 0; i < k; i++) {
+        for (std::size_t i = 0; i < n_clusters; i++) {
             sum += wasserstein_2(old_clusters[i], new_clusters[i]);
         }
-        return sum / static_cast<T>(k);
+        return sum / static_cast<T>(n_clusters);
     }
     //Function that gets the objective of the kmeans clustering algorithm
     template <typename T>

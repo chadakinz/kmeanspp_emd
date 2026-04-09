@@ -1,9 +1,9 @@
-## Implementation
+# Implementation
 
 
 This algorithm is consists of 7 steps, all of which are executed in ./includes/wkmeans/wkmeans_run_procedure.tpp file.
 
-### Initialization Procedure
+## Initialization Procedure
 The initialization phase in `run_restart()` consists of two steps: `init_clusters()` and `init_bounds()`.
 
 **init_clusters():**  
@@ -17,7 +17,7 @@ This function assigns each data point to its nearest cluster center and initiali
 computes the distance to all cluster centers, assigns the point to the closest one, and stores the corresponding distance
 as an upper bound. Distances to all clusters are stored as lower bounds. Cluster sizes are computed using thread-local
 counts and aggregated after parallel execution.
-### Update Procedure
+## Update Procedure
 
 The update phase in `run_restart()` primarily consists of `update_clusters()` and `update_bounds()`. These steps recompute cluster centers and adjust distance bounds efficiently.
 
@@ -97,7 +97,7 @@ T delta = res.deltas[i];
 }
 ```
 This avoids recomputing all distances by adjusting bounds based on how much cluster centers moved.
-### Assign New Clusters
+## Assign New Clusters
 
 The ```assign_new_clusters()``` function reassigns points to clusters using bounds to minimize distance calculations.
 
@@ -142,3 +142,33 @@ c_i = k
 upper_bounds[i] = distance_placeholder3
 cluster_size[c_i] += 1
 ```
+## Metrics
+
+Metric functions are used to see how close our algorithm is to a local minimum for the kmeans objective. There are two 
+objective functions which we can utilize to produce a correct algorithm. `delta_clusters()` and `get_objective()`.
+
+`delta_clusters()`: This function takes the clusters from generated from step (t-1) and finds the average difference between
+the clusters generated in step t.
+```cpp
+T sum = T{};
+for (std::size_t i = 0; i < n_clusters; i++) {
+    sum += wasserstein_2(old_clusters[i], new_clusters[i]);
+}
+return sum / static_cast<T>(n_clusters);
+```
+Using our distance metric, if this average sum is less than our parameter `epsilon` then we stop the algorithm and return 
+the objective recieved from the current restart.
+
+`get_objective()`: This function returns the objective defined by the standard kmeans algorithm (see `wasserstein_kmeans.pdf` for more detail).
+```cpp
+for(int t = 0; t < num_threads; t++){
+    int start = t * chunk;
+    int end = std::min(start + chunk, d_size);
+    threads.emplace_back([=, this, &thread_local_sum](){
+        for(int i = start; i < end; i++){
+            thread_local_sum[t] += wasserstein_2(ppfs[i], clusters[cluster_assignments[i]]);
+        }
+    });
+}
+```
+We use standard threading procedure to speed up calculations. 

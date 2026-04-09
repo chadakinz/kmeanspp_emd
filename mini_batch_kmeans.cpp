@@ -138,6 +138,7 @@ int main(int argc, char* argv[]) {
         std::string init_file = build_path(DIRECTORY, format_file);
         init_distributions(init_file, pdfs, cdfs, ppfs);
         //todo implement a way to reset pdfs, cdfs, ppfs from an already created object.
-        WKmeans<double> wkmeans_obj.init_batch_kmeans(pdfs, cdfs, ppfs, previous_clusters);
+        wkmeans_obj.reset_for_next_batch();
+        wkmeans_obj.init_batch_kmeans(pdfs, cdfs, ppfs, previous_clusters);
     }
 }
