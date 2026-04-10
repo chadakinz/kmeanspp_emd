@@ -12,17 +12,22 @@ You should see an output like:
 
 ```terminal
 Randomness seeded to: 4119050203
-0.155242old_objective: 31.0111 new objective: 31.0114
+0.155242 old_objective: 31.0111 new objective: 31.0114
 old_objective: 30.9857 new objective: 30.9862
 first objective: 40.4344 last objective: 30.9862
 ===============================================================================
 All tests passed (325224 assertions in 14 test cases)
 ```
 
-I wont go over all test cases but each file has a special tag if you want to run those tests independently. To do this
+This text won't go over all test cases, but each file has a special tag if you want to run those tests independently. To do this
 follow the information in the table.
 
 
-The tests that are most important are going to be testing our metrics and results. We want to show that our algorithm 
-converges to some local minimum solution for the given objective. We also want to show that the inverse cumulative functions
-we generated result to valid pdfs when converted back. 
+To show this algorithm is doing as intended, we need to show that for each iteration of our algorithm, the objective 
+decreases until convergence. The second test we need to show is that the resultant percent point functions generated 
+from our algorithms are in fact valid probability mass functions.
+
+To show that our algorithm is in fact converging to a local minimum, we present the `test_get_objective` inside the 
+`test_wkmeans_metrics.cpp` file. This test runs the algorithm for 200 steps on 5 test files that each have 6000 sample points. 
+
+<a href="../scripts/graphs/plot_test_file_10.png">View Implementation File</a>

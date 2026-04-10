@@ -11,7 +11,7 @@
 #include "test_objects.h"
 
 TEST_CASE("test_process_line", "[file]"){
-    std::ifstream file("../tests/test_files/medium_input.txt");
+    std::ifstream file("../tests/test_files/test_input_1.txt");
     std::string line;
     std::getline(file, line);
     PDF<double> test_pdf1(10);
@@ -31,7 +31,7 @@ TEST_CASE("test_init_distribution", "[file]"){
     pdfs.reserve(6000);
     cdfs.reserve(6000);
     ppfs.reserve(6000);
-    init_distributions("../tests/test_files/medium_input.txt", pdfs, cdfs, ppfs, 10);
+    init_distributions("../tests/test_files/test_input_1.txt", pdfs, cdfs, ppfs, 10);
     for(int i = 0; i < 6000; i++){
         REQUIRE(is_valid_pdf(pdfs[i]));
     }

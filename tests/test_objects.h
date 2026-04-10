@@ -1,7 +1,7 @@
 #pragma once
 #include "config.h"
 
-inline int N_CLUSTERS =11;
+inline int N_CLUSTERS = 100;
 
 inline std::vector<PDF<double>> pdfs2 = {
         PDF<double>{0.0,0.0,0.0,0.086957,0.521739,0.152174,0.043478,0.130435,0.065217,0.0},
