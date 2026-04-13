@@ -30,6 +30,7 @@ def generate_plots():
     if not (os.path.isdir("./graphs")):
         os.mkdir("./graphs")
     for csv_file in csv_files:
+        if csv_file[:9] != "test_input": continue
         data = pd.read_csv(PLOT_PATH + csv_file)
         # ... plotting code ...
         plt.plot(data.index, data.values, label=f"sample {count}")
@@ -50,4 +51,4 @@ def generate_plots():
 if __name__ == "__main__":
     #run_cpp_tests()
     generate_plots()
-    print("\n✅ Report generation complete. Check ./output/ for plots")
+    print("\n✅ Report generation complete. Check ./graphs/ for plots")

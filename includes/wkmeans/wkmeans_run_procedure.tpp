@@ -28,4 +28,11 @@ namespace kmeans{
         }
         return get_objective();
     }
+    //TODO dont need any upper or lower bounds, just need to assign clusters for one iteration
+    template<typename T>
+    void WKmeans<T>::run_batch_restart(const std::vector<uint32_t>& sizes){
+      mini_batch_assign_clusters();
+      mini_batch_update_clusters(sizes);
+      }
+
 }

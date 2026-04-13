@@ -18,7 +18,7 @@ bool valid_cluster(const PPF<double>& cluster){
 }
 
 
-TEST_CASE("run_procedure_test1", "[run]"){
+TEST_CASE("run_procedure_test", "[run]"){
     PPF_SIZE = 500;
     build_data();
     WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);

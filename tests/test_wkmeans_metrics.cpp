@@ -62,7 +62,7 @@ TEST_CASE("test_get_objective", "[metrics]"){
                   << " old: " << old_objective << " new: " << new_objective << std::endl;
         count ++;
       }
-      REQUIRE(count < 10);
+      REQUIRE(count < 2);
     }
 
     // Store histories for later plotting

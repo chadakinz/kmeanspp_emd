@@ -35,6 +35,11 @@ wasserstein_kmeanspp/
 │   ├── config.h               # Global configuration
 │   └── distributions.hpp      # Distribution utilities
 │
+├── scripts/                   # Python scripts for generating graphs
+│   ├── graphs/                
+│   ├── generate_metrics_graphs.py      # Generating graphs
+│   └── requirements.txt                # Requirements for python env
+│
 ├── tests/                     # Test files (see Tests section for more detail)
 │
 ├── CMakeLists.txt             # CMake build configuration
@@ -81,7 +86,6 @@ Each flag, its default initialization and its description can be seen in this fo
 (-N, 50): Number of restarts to run algorithm
 (-t, 1): number of threads to run the algorithm (cannot exceed Number of restarts)
 (S, 0): choose the specify the seed for the random number generator
-
 ```
 You can view this if you run the program without any flags.
 

@@ -48,7 +48,11 @@ namespace kmeans {
         T old_get_objective();
         T delta_clusters(std::vector<PPF<T>>& old_clusters, std::vector<PPF<T>>& new_clusters);
         void mini_batch_update_clusters(const std::vector<uint32_t>& sizes);
-
+        void init_batch_kmeans(const std::vector<PDF<T>>& pdfs,
+                          const std::vector<CDF<T>>& cdfs,
+                          const std::vector<PPF<T>>& ppfs,
+                          const std::vector<PPF<T>>& previous_clusters);
+        void run_batch_restart(const std::vector<uint32_t>& sizes);
         const std::vector<T>& get_upper_bounds() const { return upper_bounds; }
         const std::vector<T>& get_lower_bounds() const { return lower_bounds; }
         const std::vector<int>& get_cluster_assignments() const { return cluster_assignments; }

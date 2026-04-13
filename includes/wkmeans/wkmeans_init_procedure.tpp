@@ -65,6 +65,7 @@ namespace kmeans{
 
     template <typename T>
     void WKmeans<T>::init_bounds(){
+        std::fill(cluster_size.begin(), cluster_size.end(), 0);
         int num_threads = std::thread::hardware_concurrency();
         int chunk = (d_size + num_threads - 1)/num_threads;
         std::vector<std::vector<int>> local_counts(
@@ -100,6 +101,16 @@ namespace kmeans{
             }
         }
 
+    }
 
+    template <typename T>
+    void WKmeans<T>::init_batch_kmeans(const std::vector<PDF<T>>& pdfs,
+                                       const std::vector<CDF<T>>& cdfs,
+                                       const std::vector<PPF<T>>& ppfs,
+                                       const std::vector<PPF<T>>& previous_clusters){
+      (*this).pdfs = pdfs;
+      (*this).cdfs = cdfs;
+      (*this).ppfs = ppfs;
+      (*this).clusters = previous_clusters;
     }
 }

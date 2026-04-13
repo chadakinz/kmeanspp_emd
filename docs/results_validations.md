@@ -11,12 +11,19 @@ To run all of the tests, from the root directory run:
 You should see an output like:
 
 ```terminal
-Randomness seeded to: 4119050203
-0.155242 old_objective: 31.0111 new objective: 31.0114
-old_objective: 30.9857 new objective: 30.9862
-first objective: 40.4344 last objective: 30.9862
+Randomness seeded to: 2932034044
+Warning: objective increased at iteration 23 old: 232.681 new: 232.682
+File 1 - first objective: 301.165 last objective: 232.682
+File 2 - first objective: 299.069 last objective: 231.907
+File 3 - first objective: 296.502 last objective: 233.5
+File 4 - first objective: 303.912 last objective: 230.132
+File 5 - first objective: 300.903 last objective: 232.585
+Saved convergence data to ../tests/inertia_metrics/convergence_data_file_1.csv
+Saved convergence data to ../tests/inertia_metrics/convergence_data_file_2.csv
+Saved convergence data to ../tests/inertia_metrics/convergence_data_file_3.csv
+Saved convergence data to ../tests/inertia_metrics/convergence_data_file_4.csv
+Saved convergence data to ../tests/inertia_metrics/convergence_data_file_5.csv
 ===============================================================================
-All tests passed (325224 assertions in 14 test cases)
 ```
 
 This text won't go over all test cases, but each file has a special tag if you want to run those tests independently. To do this
@@ -28,6 +35,46 @@ decreases until convergence. The second test we need to show is that the resulta
 from our algorithms are in fact valid probability mass functions.
 
 To show that our algorithm is in fact converging to a local minimum, we present the `test_get_objective` inside the 
-`test_wkmeans_metrics.cpp` file. This test runs the algorithm for 200 steps on 5 test files that each have 6000 sample points. 
+`test_wkmeans_metrics.cpp` file. This test runs the algorithm for 200 steps on 5 test files that each have 6000 sample points.
 
-<a href="../scripts/graphs/plot_test_file_10.png">View Implementation File</a>
+![Converging Objective](../scripts/graphs/plot_test_file_10.png)
+
+This graph demonstrates each one of the 5 samples converging over 35 iterations with 100 clusters. To view these graphs,
+after building the project, run:
+```
+python3 -m venv .venv
+pip3 install -r requirements.txt
+cd scripts
+python3 generate_metrics_graphs.py
+```
+A folder called graphs should appear with this graph inside.
+
+After converging, we can run tests to determine whether the pdfs generated from our algorithm are valid. To do this, 
+run:
+```
+./tests "run_procedure_tests"
+```
+In these tests we run our run procedure:
+```c++
+WKmeans<double> test_wkmeans(pdfs.size(), N_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, 10, 42);
+    test_wkmeans.init_clusters();
+    test_wkmeans.init_bounds();
+    for(int t = 0; t < 50; t++){
+        test_wkmeans.update_clusters();
+        test_wkmeans.update_bounds();
+        test_wkmeans.swap_clusters();
+        for(int k = 0; k < N_CLUSTERS; k++){
+            REQUIRE(valid_cluster(test_wkmeans.clusters[k]));
+        }
+        test_wkmeans.assign_new_clusters();
+    }
+```
+and each iteration we make sure the clusters computed are monotonic and positive.
+After 50 iterations, the algorithm given the dataset should converge. After convergence, we check if the generated clusters, once
+converted back to pdfs are valid.
+```c++
+std::vector<PDF<double>> temp_pdfs = test_wkmeans.convert_clusters();
+for(int k = 0; k < N_CLUSTERS; k++){
+    REQUIRE(is_valid_pdf(temp_pdfs[k]));
+}
+```

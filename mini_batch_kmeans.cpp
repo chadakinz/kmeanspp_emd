@@ -123,6 +123,7 @@ int main(int argc, char* argv[]) {
     pdfs.reserve(d_size);
     cdfs.reserve(d_size);
     ppfs.reserve(d_size);
+    std::vector<uint32_t> sizes(NUM_CLUSTERS, 0);
 
     int number_samples = number_of_files(DIRECTORY, INPUT_FILE);
 
@@ -130,15 +131,19 @@ int main(int argc, char* argv[]) {
 
     //initialize the first clusters using the 0 sample
     WKmeans<double> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, feature, SEED);
-    double objective = wkmeans_obj.run_restart();
-
+    wkmeans_obj.init_clusters();
+    wkmeans_obj.run_batch_restart(sizes);
     for(int i = 1; i < number_samples; i++){
         std::vector<PPF<double>> previous_clusters = wkmeans_obj.clusters;
+        std::vector<int> cluster_size = wkmeans_obj.get_cluster_size();
+        for(int i = 0; i < sizes.size(); i++) sizes[i] += cluster_size[i];
+
         std::string format_file = "_" + std::stoi(i);
         std::string init_file = build_path(DIRECTORY, format_file);
-        init_distributions(init_file, pdfs, cdfs, ppfs);
-        //todo implement a way to reset pdfs, cdfs, ppfs from an already created object.
-        wkmeans_obj.reset_for_next_batch();
+        init_distributions_inplace(init_file, pdfs, cdfs, ppfs);
+
         wkmeans_obj.init_batch_kmeans(pdfs, cdfs, ppfs, previous_clusters);
+        wkmeans_obj.run_batch_restart(sizes);
     }
+
 }

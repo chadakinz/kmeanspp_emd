@@ -40,3 +40,32 @@ void init_distributions(const std::string& file_name, std::vector<PDF<T>>& pdfs,
         ppfs.push_back(temp_cdf.get_ppf());
     }
 }
+template<typename T>
+void init_distributions_inplace(const std::string& file_name,
+                        std::vector<PDF<T>>& pdfs,
+                        std::vector<CDF<T>>& cdfs,
+                        std::vector<PPF<T>>& ppfs,
+                        int features)
+{
+  std::ifstream file(file_name);
+  std::string line;
+
+  CDF<T> temp_cdf(features);
+  PDF<T> temp_pdf(features);
+
+  size_t i = 0;
+
+  while (i < pdfs.size() && std::getline(file, line)) {
+    process_line_into_pdf(line, features, temp_pdf);
+    temp_pdf.normalize();
+
+    pdfs[i] = temp_pdf;
+
+    temp_cdf = temp_pdf.get_cdf();
+    cdfs[i] = temp_cdf;
+
+    ppfs[i] = temp_cdf.get_ppf();
+
+    i++;
+  }
+}
