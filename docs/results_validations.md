@@ -42,9 +42,9 @@ To show that our algorithm is in fact converging to a local minimum, we present 
 This graph demonstrates each one of the 5 samples converging over 35 iterations with 100 clusters. To view these graphs,
 after building the project, run:
 ```
+cd scripts
 python3 -m venv .venv
 pip3 install -r requirements.txt
-cd scripts
 python3 generate_metrics_graphs.py
 ```
 A folder called graphs should appear with this graph inside.
@@ -78,3 +78,27 @@ for(int k = 0; k < N_CLUSTERS; k++){
     REQUIRE(is_valid_pdf(temp_pdfs[k]));
 }
 ```
+
+We can utilize PCA
+to perform qualitative tests on our clusters. Inside the `./tests/test_files` we use `test_input_1.txt`. We run our kmeans 
+algorithm to get 10 clusters on 6000 data points. We then assign the data points to the 10 clusters, and use PCA to reduce
+the data to 2 dimensions. Our 2 principal components retained 40% of our data's variance. Plotting our data points,
+and assigning a color to the clusters they belong to, we are presented with this graph:
+
+![Converging Objective](../scripts/graphs/wasserstein_pca_clusters.png)
+
+Cluster separation in the projected space suggests that the learned structure is partially captured in a low-dimensional 
+Euclidean embedding, despite clustering being performed in Wasserstein space.
+
+This graph was generated from the `generate_metrics_graphs.py` script, with function `pca_graphs()`.
+
+# Conclusions
+
+The purpose of this code was to create a fast, parallelizable method for clustering probability mass functions. The data 
+used to verify these tests were equity histograms of poker turn scenarios. Each histogram represents a probability distribution 
+over possible outcomes, making them well-suited for comparison using Wasserstein distance rather than standard Euclidean metrics.
+
+Further work to validate and interpret the resulting clusters involves mapping each data point back to its corresponding 
+poker turn scenario and analyzing whether the clusters align with meaningful game states, such as board texture, equity 
+distribution shape, or strategic similarity. This would help determine whether the clustering is not only mathematically 
+coherent but also practically useful for understanding structure in poker decision-making spaces.

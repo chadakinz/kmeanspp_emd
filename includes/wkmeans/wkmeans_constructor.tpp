@@ -17,5 +17,4 @@ namespace kmeans{
         if (seed == 0) gen.seed(rd());
         else gen.seed(seed);
     }
-
 }
