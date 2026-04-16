@@ -36,10 +36,21 @@ public:
         return os;
     }
     NumericArray operator+(const NumericArray& b){
+
         NumericArray x(N);
         for(int i = 0; i < N; i++){
             x[i] = _data[i] + b[i];
         }
+        return x;
+    }
+
+    NumericArray operator*(const T val){
+        NumericArray x(N);
+
+        for(int i = 0; i < N; i++){
+            x[i] = _data[i] * val;
+        }
+
         return x;
     }
 

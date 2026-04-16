@@ -1,2 +1,101 @@
-In this repository I implemented a kmeans++ algorithm in Wasserstein space. 
+# Parallelized kmeans++ in Wasserstein space
+In this repository I implemented a kmeans++ algorithm in Wasserstein space. For the mathematical
+insight on this algorithm, see wasserstein_kmeans.pdf, along with any relevant sources.
 
+## Overview
+- This project allows the user to cluster 1 dimensional probability mass functions using the second Wasserstein distance function.
+- The clustering algorithm was implemented using a standard KMeans procedure.
+- The algorithm utilizes the kmeans++ initialization procedure to produce better starting clusters and improve local minimum values.
+- It also incorporates Charles Elkan's acceleration algorithm [2], using the triangle inequality to skip computations during cluster reassignments.
+- Additionally, the code utilizes all available system threads to run processes in parallel.
+
+## File Structure  
+<small> (Code might change without updating, general structure should remain) </small>
+
+
+```
+wasserstein_kmeanspp/
+├── build/                      # Build artifacts (generated)
+├── includes/                   # Core library headers
+│   ├── containers/             # Data structures and abstractions
+│   │   ├── cdf.h               # Cumulative distribution functions
+│   │   ├── numericArray.h      # Base class for numeric array containers
+│   │   ├── pdf.h               # Probability density functions
+│   │   └── ppf.h               # Percent point functions (inverse CDF)
+│   │
+│   ├── wkmeans/                # Wasserstein K-means implementation
+│   │   ├── wkmeans.h                   # Main class definition
+│   │   ├── wkmeans_bounds.tpp          # Update bounds
+│   │   ├── wkmeans_clustering.tpp      # Assign clusters, update clusters...
+│   │   ├── wkmeans_constructor.tpp     
+│   │   ├── wkmeans_init_procedure.tpp  # Initialization (k-means++)
+│   │   ├── wkmeans_metrics.tpp         # Performance metrics
+│   │   └── wkmeans_run_procedure.tpp   # Main algorithm loop
+│   │
+│   ├── config.h               # Global configuration
+│   └── distributions.hpp      # Distribution utilities
+│
+├── scripts/                   # Python scripts for generating graphs
+│   ├── graphs/                
+│   ├── generate_metrics_graphs.py      # Generating graphs
+│   └── requirements.txt                # Requirements for python env
+│
+├── tests/                     # Test files (see Tests section for more detail)
+│
+├── CMakeLists.txt             # CMake build configuration
+├── Makefile                   # Alternative build system
+├── main.cpp                   # Entry point
+├── mini_batch_kmeans.cpp      # Mini-batch variant implementation
+│
+├── README.md                  # Project documentation
+├── wasserstein_kmeans.pdf     # Paper / reference material
+└── wasserstein_kmeans.qmd     # Quarto source for documentation
+```
+## Build
+To build this project, git clone the repository into your local environemnt
+
+```
+git clone git@github.com:chadakinz/kmeanspp_emd.git
+```
+Then inside the repository run:
+```
+cmake -B build
+```
+After building the project run these lines
+```
+cd build
+make
+```
+Upon completing this step you should see two executables, `tests` located in `build`, and `main` located in `build/bin`.
+
+This code is run from main where the parameters of the algorithm are intialized and used to begin the run procedure.
+
+An example of how to run the algorithm (after building it using cmake):
+
+```
+./build/bin/main -k 1000 -i sample.txt -u 500 -s 5e-4 -t 5 -N 10 -o ./output.txt
+```
+Each flag, its default initialization and its description can be seen in this format:
+```
+(flag, default): description
+(-k, 10): number of clusters
+(-i, NONE): name of the input file (must be a csv)
+(-o, output_999.csv): name of the output file
+(-s, 1e-4): epsilon parameter used to specify when program should terminate
+(-u, 20): size of percent point function bins
+(-N, 50): Number of restarts to run algorithm
+(-t, 1): number of threads to run the algorithm (cannot exceed Number of restarts)
+(S, 0): choose the specify the seed for the random number generator
+```
+You can view this if you run the program without any flags.
+
+## References
+[1] D. Arthur and S. Vassilvitskii, k-means++: The Advantages of Careful Seeding, Proceedings of the Eighteenth Annual ACM-SIAM Symposium on Discrete Algorithms (SODA), 2007.
+
+
+URL: https://dl.acm.org/doi/10.5555/1283383.1283494
+
+[2] C. Elkan, Using the Triangle Inequality to Accelerate k-means, Proceedings of the 20th International Conference on Machine Learning (ICML’03), pp. 147–153, AAAI Press, 2003.
+
+[3] T. Le Gouic and J.-M. Loubes, Existence and Consistency of Wasserstein Barycenters, arXiv preprint arXiv:1506.04153, 2016.
+arXiv: https://arxiv.org/abs/1506.04153

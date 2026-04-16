@@ -1,0 +1,53 @@
+---
+title: "Wasserstein Kmeans Algorithm"
+subtitle: "Implementing clustering algorithm over probability density functions"
+format: pdf
+bibliography: references.bib
+reference-section-title: "Sources"
+include-in-header:
+  text: |
+    \usepackage{fvextra}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+---
+# Mathematical Overview
+The purpose of this algorithm is to find an optimal way to cluster $N$ PDFs (probability density functions) using the
+second Wasserstein distance function, defined formally as:
+$$
+W^2_2(P,Q) = \inf_{\gamma \in \Gamma(P, Q)}\int _{\mathbb{R}\times\mathbb{R}}|x-y|^2d\gamma(x,y)
+$$
+where $P$ and $Q$ are PDFs, and $\Gamma(P,Q)$ is the set of joint distributions with marginal density functions $P$ and $Q$.
+
+We know from [@legouic2016existence] that if $P$ and $Q$ are univariate:
+$$
+W_2^2(P, Q) = \int^1_0(F^{-1}_P(u) - F^{-1}_Q(u))^2du
+$$
+where $F^{-1}_X(u)$ is the inverse CDF (cumulative distribution function) for PDF $X$.
+
+The task of finding a centroid for $N$ data points can be achieved by finding $Y$ such that:
+$$
+Y = \arg\min_{Y \in B} \sum_{i = 1}^N d(X_i, Y)
+$$
+where our data points exist in set $S \subseteq B$, and $d$ is an arbitrary distance function.
+
+Let $d = W_2^2$ (the squared Wasserstein distance). Then we wish to find a point $Y$ such that:
+
+$$
+Y = \arg\min_{Y \in B} \sum_{i = 1}^N\int^1_0(F^{-1}_Y(u) - F^{-1}_{X_i}(u))^2dt
+$$
+
+From [@legouic2016existence] we know that:
+
+$$
+F^{-1}_Y = \frac{1}{N}\sum_{i = 1}^N F^{-1}_{X_i}(u)
+$$
+
+Thus, we can easily find a the best fit cluster of our PDFs by averaging the quantile functions of our data points.
+If we wanted to assign each point to a set of $K$ clusters, the objective is to find a sequence of k clusters $\mu_1,..,\mu_K$:
+$$
+\mu_1,..,\mu_K = \arg\min_{\mu_1,..,\mu_K} \sum_{k=1}^K\sum_{X_i \in C_k} d(X_i, \mu_k)
+$$
+We can find a local minimum to this problem if, at step $t + 1$, we update each cluster using update procedure:
+$$
+\mu_k^{t+1} \leftarrow \frac{1}{|C_k^t|}\sum_{X_i \in C_k^t} F^{-1}_{X_i}(u)
+$$
+\newpage

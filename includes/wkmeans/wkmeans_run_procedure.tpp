@@ -3,7 +3,7 @@
 namespace kmeans{
     template <typename T>
     T WKmeans<T>::run_restart(){
-        auto now = std::chrono::steady_clock::now();
+        auto now = std::chrono::high_resolution_clock::now();
 
         init_clusters();
         init_bounds();
@@ -14,7 +14,7 @@ namespace kmeans{
         bool converged = false;
 
         while (!converged){
-            auto now = std::chrono::steady_clock::now();
+            auto now = std::chrono::high_resolution_clock::now();
             update_clusters();
             update_bounds();
             if(delta_clusters(new_clusters, clusters) < epsilon) converged = true;
@@ -28,4 +28,11 @@ namespace kmeans{
         }
         return get_objective();
     }
+    //TODO dont need any upper or lower bounds, just need to assign clusters for one iteration
+    template<typename T>
+    void WKmeans<T>::run_batch_restart(const std::vector<uint32_t>& sizes){
+      mini_batch_assign_clusters();
+      mini_batch_update_clusters(sizes);
+      }
+
 }

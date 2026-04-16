@@ -27,7 +27,6 @@ namespace kmeans {
                 ,const T& sum, NumericArray<T>& probs);
 
         inline std::vector<T> get_vector_s();
-        T delta_clusters(std::vector<PPF<T>>& old_clusters, std::vector<PPF<T>>& new_clusters);
 
 
 
@@ -46,12 +45,20 @@ namespace kmeans {
         T get_objective();
         T run_restart();
         void old_update_bounds();
-
+        T old_get_objective();
+        T delta_clusters(std::vector<PPF<T>>& old_clusters, std::vector<PPF<T>>& new_clusters);
+        void mini_batch_update_clusters(const std::vector<uint32_t>& sizes);
+        void init_batch_kmeans(const std::vector<PDF<T>>& pdfs,
+                          const std::vector<CDF<T>>& cdfs,
+                          const std::vector<PPF<T>>& ppfs,
+                          const std::vector<PPF<T>>& previous_clusters);
+        void run_batch_restart(const std::vector<uint32_t>& sizes);
         const std::vector<T>& get_upper_bounds() const { return upper_bounds; }
         const std::vector<T>& get_lower_bounds() const { return lower_bounds; }
         const std::vector<int>& get_cluster_assignments() const { return cluster_assignments; }
         const std::vector<int>& get_cluster_size() const { return cluster_size; }
         const std::vector<PPF<T>>& get_new_clusters() const { return new_clusters; }
+        void mini_batch_assign_clusters();
     };
 }
 #include "wkmeans_init_procedure.tpp"
