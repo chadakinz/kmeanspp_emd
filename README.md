@@ -6,7 +6,7 @@ insight on this algorithm, see wasserstein_kmeans.pdf, along with any relevant s
 - This project allows the user to cluster 1 dimensional probability mass functions using the second Wasserstein distance function.
 - The clustering algorithm was implemented using a standard KMeans procedure.
 - The algorithm utilizes the kmeans++ initialization procedure to produce better starting clusters and improve local minimum values.
-- It also incorporates Charles Elkan's acceleration algorithm, using the triangle inequality to skip computations during cluster reassignments.
+- It also incorporates Charles Elkan's acceleration algorithm [2], using the triangle inequality to skip computations during cluster reassignments.
 - Additionally, the code utilizes all available system threads to run processes in parallel.
 
 ## File Structure  
@@ -89,3 +89,13 @@ Each flag, its default initialization and its description can be seen in this fo
 ```
 You can view this if you run the program without any flags.
 
+## References
+[1] D. Arthur and S. Vassilvitskii, k-means++: The Advantages of Careful Seeding, Proceedings of the Eighteenth Annual ACM-SIAM Symposium on Discrete Algorithms (SODA), 2007.
+
+
+URL: https://dl.acm.org/doi/10.5555/1283383.1283494
+
+[2] C. Elkan, Using the Triangle Inequality to Accelerate k-means, Proceedings of the 20th International Conference on Machine Learning (ICML’03), pp. 147–153, AAAI Press, 2003.
+
+[3] T. Le Gouic and J.-M. Loubes, Existence and Consistency of Wasserstein Barycenters, arXiv preprint arXiv:1506.04153, 2016.
+arXiv: https://arxiv.org/abs/1506.04153

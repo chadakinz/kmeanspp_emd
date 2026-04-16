@@ -58,6 +58,7 @@ namespace kmeans {
         const std::vector<int>& get_cluster_assignments() const { return cluster_assignments; }
         const std::vector<int>& get_cluster_size() const { return cluster_size; }
         const std::vector<PPF<T>>& get_new_clusters() const { return new_clusters; }
+        void mini_batch_assign_clusters();
     };
 }
 #include "wkmeans_init_procedure.tpp"

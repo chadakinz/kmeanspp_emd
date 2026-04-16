@@ -101,21 +101,24 @@ namespace kmeans {
         int n_threads = std::thread::hardware_concurrency();
         std::vector <std::thread> threads;
         int chunk = (d_size + n_threads - 1) / n_threads;
-        std::vector <std::vector<int>> local_counts(num_threads,
+        std::vector <std::vector<int>> local_counts(n_threads,
                                                     std::vector<int>(n_clusters, 0));
         for (int t = 0; t < n_threads; t++) {
             int start = chunk * t;
             int end = std::min(start + chunk, d_size);
-            threads.emplace_back([=, this, &local_counts]() {
+            threads.emplace_back([&, t, start, end]() {
                 for (int i = start; i < end; i++) {
-                    int min = wasserstein_2(ppfs[i], clusters[i]);
-                    local_counts[t][0] += 1;
+                    T best = wasserstein_2(ppfs[i], clusters[0]);
                     cluster_assignments[i] = 0;
+                    local_counts[t][0]++;
+
                     for (int k = 1; k < n_clusters; k++) {
-                        if(wasserstein_2(ppfs[i], clusters[k]) < min){
-                            local_counts[t][cluster_assignments[i]] -=1;
+                        T dist = wasserstein_2(ppfs[i], clusters[k]);
+                        if (dist < best) {
+                            local_counts[t][cluster_assignments[i]]--;
+                            best = dist;
                             cluster_assignments[i] = k;
-                            local_counts[t][k] +=1;
+                            local_counts[t][k]++;
                         }
                     }
                 }
@@ -126,7 +129,7 @@ namespace kmeans {
         }
         for(int t = 0; t < n_threads; t++){
             for(int k = 0; k < n_clusters; k ++){
-                cluster_size[k] = local_counts[t][k];
+                cluster_size[k] += local_counts[t][k];
             }
         }
     }
