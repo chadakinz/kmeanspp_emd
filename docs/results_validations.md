@@ -92,6 +92,15 @@ Euclidean embedding, despite clustering being performed in Wasserstein space.
 
 This graph was generated from the `generate_metrics_graphs.py` script, with function `pca_graphs()`.
 
+To evaluate whether our clusters are meaningful, we perform qualitative analysis on the clustered data. The dataset consists 
+of equity histograms derived from poker turn game states. An equity histogram represents the distribution of river equities 
+by counting the frequency of each possible river outcome given a specific turn scenario. In this setting, for each turn state, 
+we record the number of occurrences corresponding to each resulting river equity.
+
+These clusters were generated using the turn board 3h, 4h, Ah, Kd. We then computed the corresponding equity distributions 
+for the following hands: Ad Ac, Ks Kc, 5d 6c, 2d 7c, 2h 7c, and 5h 6h.
+
+The equity distributions for each of the private cards can be seen below:
 # Conclusions
 
 The purpose of this code was to create a fast, parallelizable method for clustering probability mass functions. The data 
@@ -102,3 +111,13 @@ Further work to validate and interpret the resulting clusters involves mapping e
 poker turn scenario and analyzing whether the clusters align with meaningful game states, such as board texture, equity 
 distribution shape, or strategic similarity. This would help determine whether the clustering is not only mathematically 
 coherent but also practically useful for understanding structure in poker decision-making spaces.
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+  <img src="../scripts/graphs/equity_hist_0.png" alt="Converging Objective">
+  <img src="../scripts/graphs/equity_hist_1.png" alt="Converging Objective">
+  <img src="../scripts/graphs/equity_hist_2.png" alt="Converging Objective">
+  <img src="../scripts/graphs/equity_hist_3.png" alt="Converging Objective">
+  <img src="../scripts/graphs/equity_hist_4.png" alt="Converging Objective">
+  <img src="../scripts/graphs/equity_hist_5.png" alt="Converging Objective">
+</div>
+
+

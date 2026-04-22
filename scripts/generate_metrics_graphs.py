@@ -3,7 +3,6 @@
 Run this script to regenerate convergence plots from scratch.
 Usage: python scripts/generate_report.py
 """
-
 import subprocess
 import sys
 import matplotlib.pyplot as plt
