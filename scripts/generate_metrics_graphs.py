@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import ot
 from sklearn.decomposition import PCA
 import numpy as np
+import matplotlib.patches as mpatches
 
 def assign_w2_clusters_ot(pdfs_df: pd.DataFrame, clusters_df: pd.DataFrame):
 
@@ -73,7 +74,6 @@ def generate_plots():
     if not (os.path.isdir("./graphs")):
         os.mkdir("./graphs")
     for csv_file in csv_files:
-        if csv_file[:9] != "test_input": continue
         data = pd.read_csv(PLOT_PATH + csv_file)
         # ... plotting code ...
         plt.plot(data.index, data.values, label=f"sample {count}")
@@ -90,13 +90,14 @@ def generate_plots():
 
 
     print(f"Plots saved to ./scripts/graphs")
+    plt.close()
 
 
 def pca_graphs():
     # X: (N, 10) PMFs
     input_file = "../tests/test_files/test_input_1.txt"
     inputs_df = pd.read_csv(input_file, sep=" ", header=None)
-    subprocess.run(["../build/bin/main", "-k 100", "-i", input_file, "-o", "./clusters_test_input.txt", "-s","1e-5", "-N 10", "-t 2"],
+    subprocess.run(["../build/bin/main", "-k 10", "-i", input_file, "-o", "./clusters_test_input.txt", "-s","1e-5", "-N 10", "-t 2"],
                    capture_output=True, text=True)
     clusters_df = pd.read_csv("./clusters_test_input.txt", sep=",", header = None)
 
@@ -120,13 +121,24 @@ def pca_graphs():
         alpha=0.6,
         linewidths=0
     )
+    clusters = np.arange(1, 11)
+
+    cmap = plt.get_cmap("tab10")
+
+    handles = [
+    mpatches.Patch(color=cmap(i), label=f"Cluster {i+1}")
+    for i in range(10)
+    ]
+
+    plt.legend(handles=handles, title="Clusters", loc="best", fontsize=6)
     plt.title("Wasserstein-2 Clustering of PMFs (PCA Projection)")
     plt.xlabel("PC1")
     plt.ylabel("PC2")
 
     plt.savefig("./graphs/wasserstein_pca_clusters.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
-def get_silhouette_score():
+#def get_silhouette_score():
 
 if __name__ == "__main__":
     #run_cpp_tests()
