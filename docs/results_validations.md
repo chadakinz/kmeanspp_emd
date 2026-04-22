@@ -111,13 +111,17 @@ Further work to validate and interpret the resulting clusters involves mapping e
 poker turn scenario and analyzing whether the clusters align with meaningful game states, such as board texture, equity 
 distribution shape, or strategic similarity. This would help determine whether the clustering is not only mathematically 
 coherent but also practically useful for understanding structure in poker decision-making spaces.
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-  <img src="../scripts/graphs/equity_hist_0.png" alt="Converging Objective">
-  <img src="../scripts/graphs/equity_hist_1.png" alt="Converging Objective">
-  <img src="../scripts/graphs/equity_hist_2.png" alt="Converging Objective">
-  <img src="../scripts/graphs/equity_hist_3.png" alt="Converging Objective">
-  <img src="../scripts/graphs/equity_hist_4.png" alt="Converging Objective">
-  <img src="../scripts/graphs/equity_hist_5.png" alt="Converging Objective">
-</div>
+<table>
+  <tr>
+    <td><img src="../scripts/graphs/equity_hist_0.png"></td>
+    <td><img src="../scripts/graphs/equity_hist_1.png"></td>
+    <td><img src="../scripts/graphs/equity_hist_2.png"></td>
+  </tr>
+  <tr>
+    <td><img src="../scripts/graphs/equity_hist_3.png"></td>
+    <td><img src="../scripts/graphs/equity_hist_4.png"></td>
+    <td><img src="../scripts/graphs/equity_hist_5.png"></td>
+  </tr>
+</table>
 
 
