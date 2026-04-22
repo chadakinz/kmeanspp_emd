@@ -2,6 +2,13 @@ from eval7 import equity, Card, handrange
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import json
+import ast
+import pandas as pd
+import ot
+from generate_metrics_graphs import assign_w2_clusters_ot
+from sklearn.decomposition import PCA
+import matplotlib.patches as mpatches
 
 def remove_cards(deck, cards):
     new_deck = []
@@ -22,6 +29,7 @@ def generate_equity_distributions():
                      "86o, 54o, K5o, J7o, 75o, Q7o, K4o, K3o, 96o, K2o, 64o, Q6o, 53o, 85o, T6o, Q5o, 43o, Q4o, Q3o, 74o, "
                      "Q2o, J6o, 63o, J5o, 95o, 52o, J4o, J3o, 42o, J2o, 84o, T5o, T4o, 32o, T3o, 73o, T2o, 62o, 94o, 93o, 92o, 83o, 82o, 72o")
     villain_dist = handrange.HandRange(villain_dist)
+    data = dict()
     private_cards = [
         (Card("Ad"), Card("Ac")),
         (Card("Ks"), Card("Kc")),
@@ -53,6 +61,7 @@ def generate_equity_distributions():
 
             index = min(int((equity1*10)), 9)
             histogram[index] += 1
+        data[str(private_card)] = histogram
         N = len(histogram)
         x = np.arange(N) / N  # 0, 1/N, ..., (N-1)/N
 
@@ -77,7 +86,97 @@ def generate_equity_distributions():
         plt.savefig(filename, dpi=300, bbox_inches="tight")
         plt.close()
         k += 1
+    with open("equity_histograms.json", "w") as f:
+        json.dump(data, f)
 
 
+def assign_equity_distributions():
+    with open("equity_histograms.json", "r") as f:
+        data = json.load(f)
+
+    pmfs = []
+    keys = []
+
+    for k, hist in data.items():
+        hist = np.array(hist, dtype=float)
+
+        total = hist.sum()
+        if total == 0:
+            pmf = hist  # avoid divide-by-zero (edge case)
+        else:
+            pmf = hist / total
+
+        pmfs.append(pmf)
+        keys.append(k)
+
+    pmfs = np.array(pmfs)  # shape: (num_hands, num_bins)
+    data_df = pd.DataFrame(pmfs, columns=[f"bin_{i}" for i in range(pmfs.shape[1])])
+    keys = np.array(keys)
+
+    df = pd.read_csv("clusters_test_input.txt", header=None)
+
+
+    l = assign_w2_clusters_ot(data_df, df)
+    for i, row in l.iterrows():
+        print(f"{keys[i]:<35} → Cluster {row['cluster']}")
+
+    input_file = "../tests/test_files/test_input_1.txt"
+    inputs_df = pd.read_csv(input_file, sep=" ", header=None)
+    cluster_assignments = assign_w2_clusters_ot(inputs_df, df)
+    X = inputs_df.to_numpy()
+    pca = PCA(n_components=2)
+    X_2d = pca.fit_transform(X)
+    out_df = pd.DataFrame({
+        "x": X_2d[:, 0],
+        "y": X_2d[:, 1]
+    }, index=inputs_df.index)  # preserves original indexing
+
+    pmfs_new = pca.transform(pmfs)
+    # original data
+    plt.scatter(
+        out_df["x"], out_df["y"],
+        c=cluster_assignments["cluster"],
+        cmap="tab10",
+        s=5,
+        alpha=0.6,
+        linewidths=0
+    )
+
+    # new points (highlighted)
+    plt.scatter(
+        pmfs_new[:, 0],
+        pmfs_new[:, 1],
+        color="red",
+        s=80,
+        label="new points"
+    )
+    unique_keys = np.unique(keys)
+
+# assign colors for new keys
+    cmap = plt.get_cmap("tab10")
+    key_to_color = {k: cmap(i % 10) for i, k in enumerate(unique_keys)}
+
+# plot NEW points grouped by key
+    for k in unique_keys:
+        idx = np.where(keys == k)[0]
+
+        plt.scatter(
+            pmfs_new[idx, 0],
+            pmfs_new[idx, 1],
+            color=key_to_color[k],
+            s=80,
+            edgecolors="black"
+        )
+
+# 3. legend ONLY for new points
+    handles = [
+        mpatches.Patch(color=key_to_color[k], label=str(k))
+        for k in unique_keys
+    ]
+    plt.title("2D PCA Embedding of PMF Clusters with Overlaid Known Points")
+    plt.legend(handles=handles, title="Private cards", fontsize=6)
+    plt.savefig("./graphs/qualitative_tests.png", dpi=300, bbox_inches="tight")
+    plt.close()
 if __name__ == "__main__":
-    generate_equity_distributions()
+    #generate_equity_distributions()
+    assign_equity_distributions()

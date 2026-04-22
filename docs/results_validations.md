@@ -100,17 +100,8 @@ we record the number of occurrences corresponding to each resulting river equity
 These clusters were generated using the turn board 3h, 4h, Ah, Kd. We then computed the corresponding equity distributions 
 for the following hands: Ad Ac, Ks Kc, 5d 6c, 2d 7c, 2h 7c, and 5h 6h.
 
-The equity distributions for each of the private cards can be seen below:
-# Conclusions
-
-The purpose of this code was to create a fast, parallelizable method for clustering probability mass functions. The data 
-used to verify these tests were equity histograms of poker turn scenarios. Each histogram represents a probability distribution 
-over possible outcomes, making them well-suited for comparison using Wasserstein distance rather than standard Euclidean metrics.
-
-Further work to validate and interpret the resulting clusters involves mapping each data point back to its corresponding 
-poker turn scenario and analyzing whether the clusters align with meaningful game states, such as board texture, equity 
-distribution shape, or strategic similarity. This would help determine whether the clustering is not only mathematically 
-coherent but also practically useful for understanding structure in poker decision-making spaces.
+We present the equity distributiions as graphs below, we leave it up to the reader to try and predict what distributions should be
+clustered together.
 <table>
   <tr>
     <td><img src="../scripts/graphs/equity_hist_0.png"></td>
@@ -123,5 +114,42 @@ coherent but also practically useful for understanding structure in poker decisi
     <td><img src="../scripts/graphs/equity_hist_5.png"></td>
   </tr>
 </table>
+To generate these graphs, run the `generating_equity_distributions.py`.
+
+**IMPORTANT**: to run this file, you need to create a virtual environment using python 3.12. Run these lines below and the program should work:
+
+```
+cd scripts
+python3.12 -m venv .venv3.12
+source ./.venv3.12/bin/activate
+pip3 install -r requirements3-12.txt
+python3 generating_equity_distributions.py
+```
+
+These were the cluster assignments for each of the private cards:
+```
+(Card("Ad"), Card("Ac"))            → Cluster 0
+(Card("Ks"), Card("Kc"))            → Cluster 0
+(Card("5d"), Card("6c"))            → Cluster 6
+(Card("2d"), Card("7c"))            → Cluster 1
+(Card("2h"), Card("7c"))            → Cluster 7
+(Card("5h"), Card("6h"))            → Cluster 0
+
+```
+
+While this output was unexpected given the similarties between some of the histograms, a clearer picture can be made once you
+view these points over our PCA graph:
+
+![Converging Objective](../scripts/graphs/qualitative_tests.png)
 
 
+# Conclusions
+
+The purpose of this code was to create a fast, parallelizable method for clustering probability mass functions. The data 
+used to verify these tests were equity histograms of poker turn scenarios. Each histogram represents a probability distribution 
+over possible outcomes, making them well-suited for comparison using Wasserstein distance rather than standard Euclidean metrics.
+
+Further work to validate and interpret the resulting clusters involves mapping each data point back to its corresponding 
+poker turn scenario and analyzing whether the clusters align with meaningful game states, such as board texture, equity 
+distribution shape, or strategic similarity. This would help determine whether the clustering is not only mathematically 
+coherent but also practically useful for understanding structure in poker decision-making spaces.
