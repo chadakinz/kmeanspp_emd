@@ -13,6 +13,7 @@
 #include <atomic>
 #include <limits>
 #include <cstring>
+#include <filesystem>
 
 //input: folder of samples, all should be the same size
 //output: cluster assignments following the batch kmeans algorithm
@@ -20,6 +21,24 @@
 //input needs to be directory and file name. Going to assume file names are in the format director/filename_i where i is going to be each sample
 //files must begin at 0, where 0 is going to be the intialization of clusters
 using namespace kmeans;
+namespace fs = std::filesystem;
+
+void write_clusters_to_output(const std::vector<PDF<double>>& clusters){
+    std::ofstream out(OUTPUT_FILE);
+    if (!out.is_open()) {
+        std::cerr << "Error: cannot open file " << OUTPUT_FILE << "\n";
+        return;
+    }
+    for (const auto& pdf : clusters) {
+        for (size_t i = 0; i < pdf.size(); ++i) {
+            out << pdf[i];
+            if (i + 1 < pdf.size()) out << ",";  // comma between elements
+        }
+        out << "\n";  // new row per PDF
+    }
+    out.close();
+
+}
 
 std::string build_path(const std::string& dir, const std::string& filename) {
     fs::path full_path = fs::path(dir) / filename;
@@ -112,7 +131,7 @@ int main(int argc, char* argv[]) {
     process_input(argc, argv, cfg);
     init_constants(cfg);
 
-    std::string init_file = build_path(DIRECTORY, INPUT_FILE + "_0");
+    std::string init_file = build_path(DIRECTORY, INPUT_FILE + "_0.txt");
     std::pair<int, int> pair = get_dimensions(init_file);
     int d_size = pair.first;
     int feature = pair.second;
@@ -124,26 +143,30 @@ int main(int argc, char* argv[]) {
     cdfs.reserve(d_size);
     ppfs.reserve(d_size);
     std::vector<uint32_t> sizes(NUM_CLUSTERS, 0);
-
     int number_samples = number_of_files(DIRECTORY, INPUT_FILE);
 
-    init_distributions(init_file, pdfs, cdfs, ppfs);
+    init_distributions(init_file, pdfs, cdfs, ppfs, feature);
 
     //initialize the first clusters using the 0 sample
     WKmeans<double> wkmeans_obj(pdfs.size(), NUM_CLUSTERS, EPSILON, pdfs, cdfs, ppfs, feature, SEED);
+
     wkmeans_obj.init_clusters();
     wkmeans_obj.run_batch_restart(sizes);
+
     for(int i = 1; i < number_samples; i++){
         std::vector<PPF<double>> previous_clusters = wkmeans_obj.clusters;
         std::vector<int> cluster_size = wkmeans_obj.get_cluster_size();
         for(int i = 0; i < sizes.size(); i++) sizes[i] += cluster_size[i];
 
-        std::string format_file = "_" + std::stoi(i);
+        std::string format_file = "_" + std::to_string(i);
         std::string init_file = build_path(DIRECTORY, format_file);
-        init_distributions_inplace(init_file, pdfs, cdfs, ppfs);
+        init_distributions_inplace(init_file, pdfs, cdfs, ppfs, feature);
 
         wkmeans_obj.init_batch_kmeans(pdfs, cdfs, ppfs, previous_clusters);
         wkmeans_obj.run_batch_restart(sizes);
+        std::cout << i << std::endl;
     }
+    std::vector<PDF<double>> computed_clusters = wkmeans_obj.convert_clusters();
+    write_clusters_to_output(computed_clusters);
 
 }

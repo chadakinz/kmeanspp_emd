@@ -25,6 +25,13 @@ target_include_directories(main PUBLIC includes)
 set_target_properties(main PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+add_executable(mini_batch_kmeans ./mini_batch_kmeans.cpp)
+
+target_include_directories(mini_batch_kmeans PUBLIC includes)
+
+set_target_properties(mini_batch_kmeans PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 file(GLOB TEST_FILES tests/test_*.cpp)
 
 add_executable(tests ${TEST_FILES})
