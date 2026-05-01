@@ -68,15 +68,18 @@ def generate_equity_distributions():
         plt.bar(x, histogram, width=1/N)
 
         plt.text(
-            0,
-            max(histogram),
+            0.5, 0.95,  # centered horizontally, near top vertically
             f"Public cards: {public_cards}",
-            fontsize=6
+            fontsize=6,
+            ha='center',
+            va='top',
+            transform=plt.gca().transAxes
         )
 
         plt.xlabel("Equity")
         plt.ylabel("Count")
         plt.title(f"Equity histogram for private cards: {private_card}")
+        plt.ylim(0, 50)
 
         # Ensure output directory exists
         os.makedirs("graphs", exist_ok=True)
@@ -178,5 +181,5 @@ def assign_equity_distributions():
     plt.savefig("./graphs/qualitative_tests.png", dpi=300, bbox_inches="tight")
     plt.close()
 if __name__ == "__main__":
-    #generate_equity_distributions()
+    generate_equity_distributions()
     assign_equity_distributions()
